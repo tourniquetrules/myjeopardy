@@ -1,0 +1,219 @@
+{
+  "round_1": [
+    {
+      "category": "Christmas Carols",
+      "clues": [
+        {
+          "value": 200,
+          "text": "Complete the lyric: 'Silent night, holy night, all is calm, all is ___'",
+          "answer": "Bright",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "This song asks, 'Do You Hear What I Hear?'",
+          "answer": "Do You Hear What I Hear?",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "In 'Jingle Bells', this is what it is fun to ride in.",
+          "answer": "A one-horse open sleigh",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "This carol tells us to 'Deck the halls with boughs of holly'.",
+          "answer": "Deck the Halls",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "This King of Rock and Roll had a 'Blue Christmas'.",
+          "answer": "Elvis Presley",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "Bible Characters",
+      "clues": [
+        {
+          "value": 200,
+          "text": "He built an ark to survive the flood.",
+          "answer": "Noah",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "He was swallowed by a great fish.",
+          "answer": "Jonah",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "He led the Israelites out of Egypt.",
+          "answer": "Moses",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "He defeated the giant Goliath with a sling and a stone.",
+          "answer": "David",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "He was the strongest man in the Bible but lost his strength when his hair was cut.",
+          "answer": "Samson",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "The Nativity",
+      "clues": [
+        {
+          "value": 200,
+          "text": "The city where Jesus was born.",
+          "answer": "Bethlehem",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "The angel who told Mary she would give birth to Jesus.",
+          "answer": "Gabriel",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "Gifts brought by the Wise Men: Gold, Frankincense, and ___.",
+          "answer": "Myrrh",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "King Herod ordered the death of infants in this city hoping to kill the Messiah.",
+          "answer": "Bethlehem",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "Because there was no room in the inn, Jesus was laid in this.",
+          "answer": "A Manger",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "Christmas Movies",
+      "clues": [
+        {
+          "value": 200,
+          "text": "In this movie, Kevin McCallister is left behind when his family flies to Paris.",
+          "answer": "Home Alone",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "The Grinch tries to steal Christmas from this town.",
+          "answer": "Whoville",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "Buddy the Elf travels to New York to find his father in this 2003 film.",
+          "answer": "Elf",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "This character says 'Bah Humbug' in 'A Christmas Carol'.",
+          "answer": "Ebenezer Scrooge",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "In 'It's a Wonderful Life', an angel named Clarence helps this man.",
+          "answer": "George Bailey",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "General Bible Trivia",
+      "clues": [
+        {
+          "value": 200,
+          "text": "The first book of the Bible.",
+          "answer": "Genesis",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "The number of disciples Jesus had.",
+          "answer": "12",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "The shortest verse in the Bible is '___ wept'.",
+          "answer": "Jesus",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "He is known as the 'Father of Many Nations'.",
+          "answer": "Abraham",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "The place where Adam and Eve lived before the fall.",
+          "answer": "Garden of Eden",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "Winter Wonderland",
+      "clues": [
+        {
+          "value": 200,
+          "text": "A snowman might have a nose made of this vegetable.",
+          "answer": "Carrot",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "These unique ice crystals fall from the sky.",
+          "answer": "Snowflakes",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "This drink is often served with marshmallows.",
+          "answer": "Hot Chocolate / Cocoa",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "This fuzzy animal hibernates during the winter.",
+          "answer": "Bear",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "The winter solstice is the ___ day of the year.",
+          "answer": "Shortest",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "final_jeopardy": {
+    "category": "New Testament",
+    "text": "This apostle, a tax collector, wrote the first Gospel in the New Testament.",
+    "answer": "Matthew"
+  }
+}
