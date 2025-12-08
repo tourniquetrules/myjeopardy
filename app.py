@@ -17,7 +17,7 @@ def lobby():
 
 @app.route('/board')
 def board():
-    return render_template('board.html', round_data=game.round_data, board_state=game.board_state)
+    return render_template('board.html', round_data=game.round_data, board_state=game.board_state, current_round=game.current_round)
 
 @app.route('/player')
 def player():
@@ -26,7 +26,7 @@ def player():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html', round_data=game.round_data, board_state=game.board_state)
+    return render_template('admin.html', round_data=game.round_data, board_state=game.board_state, current_round=game.current_round)
 
 # --- SocketIO Events ---
 
@@ -108,6 +108,14 @@ def handle_update_score(data):
 
     game.update_score(sid, points)
     emit('score_update', game.get_player_list(), broadcast=True)
+
+@socketio.on('admin_start_round_2')
+def handle_start_round_2():
+    game.start_round_2()
+    emit('round_2_started', {
+        'round_data': game.round_data,
+        'board_state': game.board_state
+    }, broadcast=True)
 
 # --- Final Jeopardy Events ---
 

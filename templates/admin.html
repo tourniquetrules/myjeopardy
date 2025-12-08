@@ -48,6 +48,10 @@
     </div>
 
     <hr>
+    {% if current_round == 1 %}
+    <button onclick="startRound2()" id="btn-start-r2" style="width: 100%; padding: 20px; background: silver; color: black; font-size: 1.5rem; margin-bottom: 10px;">Start Double Jeopardy</button>
+    {% endif %}
+
     <button onclick="startFJ()" id="btn-start-fj" style="width: 100%; padding: 20px; background: gold; color: black; font-size: 1.5rem;">Start Final Jeopardy</button>
 
     <div id="fj-controls" style="display:none; border: 5px solid white; padding: 20px;">
@@ -148,6 +152,16 @@
     function revealFJClue() {
         socket.emit('admin_reveal_fj_clue');
     }
+
+    function startRound2() {
+        if(confirm("Start Double Jeopardy?")) {
+             socket.emit('admin_start_round_2');
+        }
+    }
+
+    socket.on('round_2_started', () => {
+        location.reload();
+    });
 
     let fjPlayers = {}; // sid -> {name, wagered, answered, answerText}
 

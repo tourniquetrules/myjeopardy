@@ -20,25 +20,27 @@ class Game:
         self.players = {}  # sid -> Player
         self.buzzers_locked = True
         self.current_buzzer = None
+        self.all_data = {}
         self.round_data = []
         self.final_jeopardy = {}
         self.board_state = [] # boolean grid
-        self.daily_double_coords = None
-        self.current_clue = None # {cat_idx, clue_idx, value, text, ...}
+        self.daily_double_coords = [] # List of tuples
+        self.current_clue = None
         self.current_wager = 0
         self.is_daily_double_turn = False
-        self.fj_wagers = {} # sid -> amount
-        self.fj_answers = {} # sid -> text
+        self.fj_wagers = {}
+        self.fj_answers = {}
         self.in_final_jeopardy = False
+        self.current_round = 1
         self.load_data()
         self.reset_board()
 
     def load_data(self):
         data_path = os.path.join('data', 'questions.json')
         with open(data_path, 'r') as f:
-            data = json.load(f)
-            self.round_data = data['round_1']
-            self.final_jeopardy = data['final_jeopardy']
+            self.all_data = json.load(f)
+            self.round_data = self.all_data['round_1']
+            self.final_jeopardy = self.all_data['final_jeopardy']
 
     def reset_board(self):
         # Initialize board state (all false = unanswered)
@@ -46,16 +48,28 @@ class Game:
         for cat in self.round_data:
             self.board_state.append([False] * len(cat['clues']))
 
-        # Pick Daily Double
-        cat_idx = random.randint(0, len(self.round_data) - 1)
-        clue_idx = random.randint(0, len(self.round_data[cat_idx]['clues']) - 1)
-        self.daily_double_coords = (cat_idx, clue_idx)
-        print(f"Daily Double at: {cat_idx}, {clue_idx}")
+        # Pick Daily Doubles
+        self.daily_double_coords = []
+        num_dd = 1 if self.current_round == 1 else 2
+
+        # Collect all valid coordinates
+        all_coords = []
+        for c in range(len(self.round_data)):
+            for r in range(len(self.round_data[c]['clues'])):
+                all_coords.append((c, r))
+
+        # Sample unique coords
+        if len(all_coords) >= num_dd:
+            self.daily_double_coords = random.sample(all_coords, num_dd)
+
+        print(f"Round {self.current_round} Daily Doubles at: {self.daily_double_coords}")
+
+    def start_round_2(self):
+        self.current_round = 2
+        self.round_data = self.all_data['round_2']
+        self.reset_board()
 
     def add_player(self, sid, name):
-        # Prevent duplicate names or sids?
-        # For now, just overwrite sid if exists, check name uniqueness?
-        # Simple implementation:
         self.players[sid] = Player(sid, name)
 
     def remove_player(self, sid):
@@ -72,7 +86,7 @@ class Game:
             return False
 
         self.current_buzzer = sid
-        self.buzzers_locked = True # Lock immediately after first buzz
+        self.buzzers_locked = True
         return True
 
     def clear_buzzers(self):
@@ -91,7 +105,7 @@ class Game:
             cat = self.round_data[cat_idx]
             if 0 <= clue_idx < len(cat['clues']):
                 clue = cat['clues'][clue_idx]
-                is_daily_double = (self.daily_double_coords == (cat_idx, clue_idx))
+                is_daily_double = (cat_idx, clue_idx) in self.daily_double_coords
                 return {
                     'cat_idx': cat_idx,
                     'clue_idx': clue_idx,

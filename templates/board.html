@@ -2,6 +2,11 @@
 
 {% block content %}
 <div id="board-container">
+    <div style="text-align: center; margin-bottom: 10px;">
+        <h1 style="margin: 0; font-size: 3rem; text-transform: uppercase;">
+            {% if current_round == 1 %}JEOPARDY!{% else %}DOUBLE JEOPARDY!{% endif %}
+        </h1>
+    </div>
     <div id="game-grid">
         <!-- Headers -->
         <div class="grid-row header-row">
@@ -132,6 +137,10 @@
     socket.on('show_fj_clue', (data) => {
          $('#clue-text').text(data.text);
          // Music?
+    });
+
+    socket.on('round_2_started', () => {
+        location.reload();
     });
 
 </script>

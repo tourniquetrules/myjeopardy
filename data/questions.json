@@ -211,6 +211,68 @@
       ]
     }
   ],
+  "round_2": [
+    {
+      "category": "Prophets Foretold",
+      "clues": [
+        {"value": 400, "text": "This prophet predicted the Messiah would be born in Bethlehem.", "answer": "Micah", "type": "text"},
+        {"value": 800, "text": "He prophesied: 'For unto us a Child is born, Unto us a Son is given'.", "answer": "Isaiah", "type": "text"},
+        {"value": 1200, "text": "This major prophet is often called the 'Weeping Prophet'.", "answer": "Jeremiah", "type": "text"},
+        {"value": 1600, "text": "He foresaw the suffering servant in chapter 53 of his book.", "answer": "Isaiah", "type": "text"},
+        {"value": 2000, "text": "This prophet married Gomer to illustrate God's love for unfaithful Israel.", "answer": "Hosea", "type": "text"}
+      ]
+    },
+    {
+      "category": "Christmas Foods",
+      "clues": [
+        {"value": 400, "text": "This striped candy is shaped like a shepherd's crook.", "answer": "Candy Cane", "type": "text"},
+        {"value": 800, "text": "A traditional drink made with milk, cream, sugar, and eggs.", "answer": "Eggnog", "type": "text"},
+        {"value": 1200, "text": "These roasted nuts are mentioned in 'The Christmas Song'.", "answer": "Chestnuts", "type": "text"},
+        {"value": 1600, "text": "This spice cake is often built into houses.", "answer": "Gingerbread", "type": "text"},
+        {"value": 2000, "text": "In the UK, this is often hidden inside the Christmas Pudding.", "answer": "A Coin / Sixpence", "type": "text"}
+      ]
+    },
+    {
+      "category": "The Wise Men",
+      "clues": [
+        {"value": 400, "text": "The Wise Men came from this direction.", "answer": "The East", "type": "text"},
+        {"value": 800, "text": "They followed this celestial object to find Jesus.", "answer": "A Star", "type": "text"},
+        {"value": 1200, "text": "Number of Wise Men mentioned in the Bible.", "answer": "None (It says three gifts, not three men)", "type": "text"},
+        {"value": 1600, "text": "This gift symbolizes Jesus' role as a High Priest.", "answer": "Frankincense", "type": "text"},
+        {"value": 2000, "text": "They returned to their country by another way to avoid this King.", "answer": "Herod", "type": "text"}
+      ]
+    },
+    {
+      "category": "Christmas Traditions",
+      "clues": [
+        {"value": 400, "text": "People hang these by the chimney with care.", "answer": "Stockings", "type": "text"},
+        {"value": 800, "text": "This plant is often hung in doorways for people to kiss under.", "answer": "Mistletoe", "type": "text"},
+        {"value": 1200, "text": "This ballet is a popular Christmas tradition.", "answer": "The Nutcracker", "type": "text"},
+        {"value": 1600, "text": "The calendar used to count down the days to Christmas.", "answer": "Advent Calendar", "type": "text"},
+        {"value": 2000, "text": "In this country, St. Lucia Day is celebrated on December 13th.", "answer": "Sweden", "type": "text"}
+      ]
+    },
+    {
+      "category": "Miracles of Jesus",
+      "clues": [
+        {"value": 400, "text": "Jesus' first miracle, performed at a wedding in Cana.", "answer": "Turning water into wine", "type": "text"},
+        {"value": 800, "text": "Jesus fed 5,000 people with 2 fish and 5 of these.", "answer": "Loaves of Bread", "type": "text"},
+        {"value": 1200, "text": "Jesus walked on this body of water.", "answer": "Sea of Galilee", "type": "text"},
+        {"value": 1600, "text": "Jesus raised this man from the dead after four days.", "answer": "Lazarus", "type": "text"},
+        {"value": 2000, "text": "Jesus healed ten of these, but only one returned to thank him.", "answer": "Lepers", "type": "text"}
+      ]
+    },
+    {
+      "category": "Santa's Reindeer",
+      "clues": [
+        {"value": 400, "text": "The reindeer with a red nose.", "answer": "Rudolph", "type": "text"},
+        {"value": 800, "text": "The two reindeer whose names start with 'C'.", "answer": "Comet and Cupid", "type": "text"},
+        {"value": 1200, "text": "This reindeer shares a name with a female fox.", "answer": "Vixen", "type": "text"},
+        {"value": 1600, "text": "Donner and Blitzen's names mean Thunder and Lightning in this language.", "answer": "German", "type": "text"},
+        {"value": 2000, "text": "The number of reindeer in the poem 'Twas the Night Before Christmas'.", "answer": "Eight (Rudolph wasn't in the original)", "type": "text"}
+      ]
+    }
+  ],
   "final_jeopardy": {
     "category": "New Testament",
     "text": "This apostle, a tax collector, wrote the first Gospel in the New Testament.",
