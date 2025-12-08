@@ -1,0 +1,190 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="board-container">
+    <div style="text-align: center; margin-bottom: 10px;">
+        <h1 style="margin: 0; font-size: 3rem; text-transform: uppercase;">
+            {% if current_round == 1 %}JEOPARDY!{% else %}DOUBLE JEOPARDY!{% endif %}
+        </h1>
+    </div>
+    <div id="game-grid">
+        <!-- Headers -->
+        <div class="grid-row header-row">
+            {% for cat in round_data %}
+            <div class="grid-header">{{ cat.category }}</div>
+            {% endfor %}
+        </div>
+        <!-- Clues -->
+        {% for row_idx in range(5) %}
+        <div class="grid-row">
+            {% for col_idx in range(6) %}
+            <div class="grid-cell" id="cell-{{ col_idx }}-{{ row_idx }}">
+                {% if not board_state[col_idx][row_idx] %}
+                <span class="value">${{ round_data[col_idx].clues[row_idx].value }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Scoreboard -->
+    <div id="scoreboard">
+        <!-- Populated via JS -->
+    </div>
+
+    <!-- Clue Overlay -->
+    <div id="clue-overlay" style="display: none;">
+        <div id="clue-content">
+            <h2 id="clue-category">CATEGORY</h2>
+            <div id="clue-text">Clue Text Here</div>
+            <div id="media-container"></div>
+            <div id="timer-bar"><div id="timer-fill"></div></div>
+            <div id="buzz-indicator" style="display:none;">PLAYER NAME</div>
+        </div>
+    </div>
+
+    <!-- Countdown and Answer Overlays -->
+    <div id="countdown-timer" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); font-size:10rem; color:red; z-index:200; text-shadow: 2px 2px 0 black; font-weight: bold;">10</div>
+    <div id="answer-overlay" style="display:none; position:fixed; bottom:20%; width:100%; text-align:center; font-size:4rem; color:yellow; z-index:200; background:rgba(0,0,0,0.8); padding: 20px; font-weight: bold;">ANSWER: <span id="answer-text-content"></span></div>
+</div>
+
+<script>
+    const socket = io();
+    const sounds = {
+        buzz: new Audio('/static/assets/audio/buzz.wav'),
+        correct: new Audio('/static/assets/audio/correct.wav'),
+        incorrect: new Audio('/static/assets/audio/incorrect.wav'),
+        daily_double: new Audio('/static/assets/audio/daily_double.wav'),
+        times_up: new Audio('/static/assets/audio/times_up.wav')
+    };
+
+    function updateScoreboard(players) {
+        const sb = $('#scoreboard');
+        sb.empty();
+        players.forEach(p => {
+            sb.append(`<div class="player-score">
+                <div class="p-name">${p.name}</div>
+                <div class="p-score">$${p.score}</div>
+            </div>`);
+        });
+    }
+
+    socket.on('player_list_update', (players) => {
+        updateScoreboard(players);
+    });
+
+    socket.on('score_update', (players) => {
+        updateScoreboard(players);
+    });
+
+    socket.on('update_board_state', (data) => {
+        $(`#cell-${data.cat_idx}-${data.clue_idx}`).empty();
+    });
+
+    socket.on('show_clue', (clue) => {
+        $('#clue-category').text(clue.category);
+        $('#clue-text').text(clue.text);
+        $('#clue-overlay').show();
+
+        // Handle media
+        $('#media-container').empty();
+        if (clue.media_url) {
+            const ext = clue.media_url.split('.').pop().toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+                $('#media-container').append(`<img src="${clue.media_url}" style="max-height: 50vh; max-width: 80%;">`);
+            } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
+                $('#media-container').append(`<audio controls autoplay src="${clue.media_url}"></audio>`);
+            } else if (['mp4', 'webm'].includes(ext)) {
+                $('#media-container').append(`<video controls autoplay src="${clue.media_url}" style="max-height: 50vh; max-width: 80%;"></video>`);
+            }
+        }
+
+        // Reset timer bar
+        $('#timer-fill').css('width', '100%');
+        $('#buzz-indicator').hide();
+    });
+
+    socket.on('show_daily_double', (clue) => {
+        $('#clue-category').text(clue.category);
+        $('#clue-text').text("DAILY DOUBLE");
+        $('#clue-overlay').show();
+        $('#media-container').empty();
+        $('#timer-fill').css('width', '100%');
+        $('#buzz-indicator').hide();
+    });
+
+    socket.on('hide_clue', () => {
+        $('#clue-overlay').hide();
+        $('#answer-overlay').hide();
+        $('#countdown-timer').hide();
+        if (countdownInterval) clearInterval(countdownInterval);
+    });
+
+    socket.on('play_sound', (data) => {
+        if (sounds[data.name]) {
+            sounds[data.name].currentTime = 0;
+            sounds[data.name].play().catch(e => console.log("Audio play error", e));
+        }
+    });
+
+    socket.on('buzz_winner', (data) => {
+        $('#buzz-indicator').text(data.name).show();
+    });
+
+    let countdownInterval;
+    socket.on('start_timer', (data) => {
+        const duration = data.duration;
+        const fill = $('#timer-fill');
+        fill.css('transition', `width ${duration}s linear`);
+        fill.css('width', '0%');
+
+        if (data.show_countdown) {
+            $('#countdown-timer').show().text(duration);
+            let timeLeft = duration;
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                $('#countdown-timer').text(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    $('#countdown-timer').hide();
+                    // Don't play times up sound client side, let server handle it via buzz_timeout_task
+                    // But for visual effect, sure. But server sends 'play_sound' event for times_up anyway.
+                }
+            }, 1000);
+        }
+    });
+
+    socket.on('reset_timer', () => {
+         const fill = $('#timer-fill');
+         fill.css('transition', 'none');
+         fill.css('width', '100%');
+         $('#countdown-timer').hide();
+         if (countdownInterval) clearInterval(countdownInterval);
+    });
+
+    socket.on('show_answer_text', (data) => {
+        $('#answer-text-content').text(data.text);
+        $('#answer-overlay').show();
+    });
+
+    socket.on('start_final_jeopardy', (data) => {
+        $('#game-grid').hide();
+        $('#clue-overlay').show();
+        $('#clue-category').text(data.category);
+        $('#clue-text').text("FINAL JEOPARDY - Place your wagers!");
+    });
+
+    socket.on('show_fj_clue', (data) => {
+         $('#clue-text').text(data.text);
+         // Music?
+    });
+
+    socket.on('round_2_started', () => {
+        location.reload();
+    });
+
+</script>
+{% endblock %}

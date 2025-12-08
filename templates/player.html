@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="player-container" id="regular-play">
+    <h2>Player: <span id="player-name">{{ name }}</span></h2>
+    <h3>Score: $<span id="player-score">0</span></h3>
+    <div id="status">Waiting...</div>
+    <button id="buzz-btn" disabled>BUZZ</button>
+</div>
+
+<div class="player-container" id="fj-wager-container" style="display:none;">
+   <h3>Final Jeopardy</h3>
+   <h4>Category: <span id="fj-category-wager"></span></h4>
+   <h4 id="fj-score-display" style="color: gold;">Your Score: $0</h4>
+   <label>Enter Wager:</label>
+   <input type="number" id="fj-wager" style="font-size: 2rem; width: 80%;">
+   <button onclick="submitFJWager()" style="font-size: 2rem; margin-top: 20px;">Submit Wager</button>
+</div>
+
+<div class="player-container" id="fj-answer-container" style="display:none;">
+   <h3>Final Jeopardy</h3>
+   <h4>Clue Revealed!</h4>
+   <label>Enter Answer:</label>
+   <input type="text" id="fj-answer" style="font-size: 2rem; width: 80%;">
+   <button onclick="submitFJAnswer()" style="font-size: 2rem; margin-top: 20px;">Submit Answer</button>
+</div>
+
+<div class="player-container" id="fj-wait" style="display:none;">
+    <h3>Wait for others...</h3>
+</div>
+
+<script>
+    const socket = io();
+    const name = "{{ name }}";
+
+    // Generate/Retrieve UUID for persistence
+    function getPlayerId() {
+        let id = localStorage.getItem('jeopardy_player_id');
+        if (!id) {
+            // Simple random ID generation if crypto not available or for simplicity
+            id = 'player-' + Math.random().toString(36).substr(2, 9) + Date.now();
+            localStorage.setItem('jeopardy_player_id', id);
+        }
+        return id;
+    }
+
+    const playerId = getPlayerId();
+
+    socket.on('connect', () => {
+        socket.emit('join_game', {name: name, player_id: playerId});
+    });
+
+    socket.on('buzzers_cleared', () => {
+        $('#buzz-btn').prop('disabled', false).removeClass('buzzed-winner buzzed-loser').text("BUZZ");
+        $('#status').text("GO!");
+    });
+
+    socket.on('buzz_winner', (data) => {
+        $('#buzz-btn').prop('disabled', true);
+        if (data.name === name) {
+            $('#buzz-btn').addClass('buzzed-winner').text("YOU BUZZED!");
+            $('#status').text("Answer Now!");
+        } else {
+            $('#buzz-btn').addClass('buzzed-loser').text(data.name + " Buzzed");
+            $('#status').text("Locked out");
+        }
+    });
+
+    socket.on('score_update', (players) => {
+        const myData = players.find(p => p.name === name);
+        if (myData) {
+            $('#player-score').text(myData.score);
+        }
+    });
+
+    $('#buzz-btn').click(() => {
+        socket.emit('buzz');
+    });
+
+    // Final Jeopardy
+    socket.on('start_final_jeopardy', (data) => {
+        $('#regular-play').hide();
+        $('#fj-category-wager').text(data.category);
+
+        // Show current score
+        const currentScore = $('#player-score').text();
+        $('#fj-score-display').text("Your Score: $" + currentScore);
+
+        $('#fj-wager-container').show();
+    });
+
+    function submitFJWager() {
+        const wager = $('#fj-wager').val();
+        socket.emit('player_fj_wager', {wager: wager});
+        $('#fj-wager-container').hide();
+        $('#fj-wait').show();
+    }
+
+    socket.on('show_fj_clue', (data) => {
+        $('#fj-wait').hide();
+        $('#fj-answer-container').show();
+    });
+
+    function submitFJAnswer() {
+        const answer = $('#fj-answer').val();
+        socket.emit('player_fj_answer', {answer: answer});
+        $('#fj-answer-container').hide();
+        $('#fj-wait').show();
+    }
+
+</script>
+{% endblock %}
