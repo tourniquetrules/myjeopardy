@@ -1,0 +1,9 @@
+ * Restarting with stat
+Exception ignored in: <bound method _ForkHooks.after_fork_in_child of <gevent.threading._ForkHooks object at 0x7f1122752570>>
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/gevent/threading.py", line 444, in after_fork_in_child
+    assert __threading__.current_thread() is self._before_fork_current_thread
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError:
+ * Debugger is active!
+ * Debugger PIN: 756-753-400

@@ -11,6 +11,7 @@
 <div class="player-container" id="fj-wager-container" style="display:none;">
    <h3>Final Jeopardy</h3>
    <h4>Category: <span id="fj-category-wager"></span></h4>
+   <h4 id="fj-score-display" style="color: gold;">Your Score: $0</h4>
    <label>Enter Wager:</label>
    <input type="number" id="fj-wager" style="font-size: 2rem; width: 80%;">
    <button onclick="submitFJWager()" style="font-size: 2rem; margin-top: 20px;">Submit Wager</button>
@@ -32,8 +33,21 @@
     const socket = io();
     const name = "{{ name }}";
 
+    // Generate/Retrieve UUID for persistence
+    function getPlayerId() {
+        let id = localStorage.getItem('jeopardy_player_id');
+        if (!id) {
+            // Simple random ID generation if crypto not available or for simplicity
+            id = 'player-' + Math.random().toString(36).substr(2, 9) + Date.now();
+            localStorage.setItem('jeopardy_player_id', id);
+        }
+        return id;
+    }
+
+    const playerId = getPlayerId();
+
     socket.on('connect', () => {
-        socket.emit('join_game', {name: name});
+        socket.emit('join_game', {name: name, player_id: playerId});
     });
 
     socket.on('buzzers_cleared', () => {
@@ -67,6 +81,11 @@
     socket.on('start_final_jeopardy', (data) => {
         $('#regular-play').hide();
         $('#fj-category-wager').text(data.category);
+
+        // Show current score
+        const currentScore = $('#player-score').text();
+        $('#fj-score-display').text("Your Score: $" + currentScore);
+
         $('#fj-wager-container').show();
     });
 

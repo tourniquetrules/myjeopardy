@@ -2,7 +2,21 @@
 
 {% block content %}
 <div class="admin-container">
+    <div id="admin-controls-header" style="display:flex; justify-content:space-between; align-items:center; padding: 10px;">
+        <h2>Host Control</h2>
+        <h3 id="control-indicator" style="color: yellow;">Control: None</h3>
+    </div>
+
     <div id="admin-grid">
+        <!-- Headers -->
+        <div class="grid-row" style="display: flex;">
+            {% for cat in round_data %}
+            <div class="grid-cell" style="height: 50px; background: #000033; color: white; font-size: 0.8rem; border: 1px solid white; display:flex; align-items:center; justify-content:center; flex:1;">
+                {{ cat.category }}
+            </div>
+            {% endfor %}
+        </div>
+
         {% for row_idx in range(5) %}
         <div class="grid-row">
             {% for col_idx in range(6) %}
@@ -24,6 +38,7 @@
 
         <div id="wager-controls" style="display:none; border: 2px solid gold; padding: 10px; margin: 10px 0;">
             <h4>Daily Double Wager</h4>
+            <div id="dd-control-info"></div>
             <input type="number" id="wager-input" placeholder="Enter Wager">
             <button onclick="submitWager()">Reveal Clue</button>
         </div>
@@ -99,10 +114,13 @@
         socket.emit('admin_update_score', {sid: currentBuzzerSid, points: points});
 
         if (isCorrect) {
-            closeClue();
+            // Wait for server to close, or close manually?
+            // Server now handles close sequence on correct.
+            // But we should visually acknowledge?
+            // closeClue(); // Don't call this, let server handle it via 'update_board_state'
         } else {
             // Incorrect, clear buzzer so others can try
-            clearBuzzers();
+            // clearBuzzers(); // Server handles this too
         }
     }
 
@@ -127,10 +145,23 @@
         $('#admin-answer-info').text(`Answer: ${clue.answer}`);
         $('#wager-controls').show();
         $('#wager-input').val('');
+        $('#dd-control-info').text('');
+    });
+
+    socket.on('assign_dd_control', (data) => {
+        // Automatically select this player
+        setBuzzer(data.sid, data.name);
+        $('#dd-control-info').text(`Control: ${data.name}`);
     });
 
     socket.on('update_board_state', (data) => {
         $(`#admin-cell-${data.cat_idx}-${data.clue_idx}`).prop('disabled', true);
+        // Reset local state
+        $('#admin-clue-info').text("None");
+        $('#admin-answer-info').text("");
+        $('#admin-buzzer').text("None");
+        currentClue = null;
+        currentBuzzerSid = null;
     });
 
     socket.on('buzz_winner', (data) => {
@@ -163,9 +194,9 @@
         location.reload();
     });
 
-    let fjPlayers = {}; // sid -> {name, wagered, answered, answerText}
+    let fjPlayers = {}; // sid -> {name, wagered, answered, answerText, score, graded}
 
-    socket.on('player_list_update', (players) => {
+    function updatePlayers(players) {
         // Render Manual Select
         const container = $('#player-select-buttons');
         container.empty();
@@ -176,11 +207,16 @@
         // Sync fjPlayers
         players.forEach(p => {
             if (!fjPlayers[p.sid]) {
-                fjPlayers[p.sid] = {name: p.name, wagered: false, answered: false, answerText: ""};
+                fjPlayers[p.sid] = {name: p.name, wagered: false, answered: false, answerText: "", score: p.score, graded: false};
+            } else {
+                fjPlayers[p.sid].score = p.score;
             }
         });
         renderFJList();
-    });
+    }
+
+    socket.on('player_list_update', updatePlayers);
+    socket.on('score_update', updatePlayers);
 
     function setBuzzer(sid, name) {
         currentBuzzerSid = sid;
@@ -203,14 +239,19 @@
         Object.keys(fjPlayers).forEach(sid => {
             const p = fjPlayers[sid];
             let html = `<div style="border: 1px solid white; margin: 5px; padding: 5px;">
-                <strong>${p.name}</strong> -
+                <strong>${p.name}</strong> ($${p.score}) -
                 Wagered: ${p.wagered ? 'YES' : 'NO'} -
                 Answered: ${p.answered ? 'YES' : 'NO'}`;
 
             if (p.answered) {
-                html += `<br>Answer: <span style="color: yellow;">${p.answerText}</span>
-                <button onclick="gradeFJ('${sid}', true)">Correct</button>
-                <button onclick="gradeFJ('${sid}', false)">Incorrect</button>`;
+                html += `<br>Answer: <span style="color: yellow;">${p.answerText}</span>`;
+                if (!p.graded) {
+                    html += `
+                    <button onclick="gradeFJ('${sid}', true)">Correct</button>
+                    <button onclick="gradeFJ('${sid}', false)">Incorrect</button>`;
+                } else {
+                    html += ` <strong>(Graded)</strong>`;
+                }
             }
             html += `</div>`;
             div.append(html);
@@ -218,8 +259,11 @@
     }
 
     function gradeFJ(sid, correct) {
+        if(fjPlayers[sid]) {
+            fjPlayers[sid].graded = true;
+            renderFJList();
+        }
         socket.emit('admin_grade_fj', {sid: sid, correct: correct});
-        // visually mark graded?
     }
 
 </script>

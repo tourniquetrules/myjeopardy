@@ -37,9 +37,13 @@ def handle_connect():
 @socketio.on('join_game')
 def handle_join(data):
     name = data.get('name')
-    game.add_player(request.sid, name)
+    player_id = data.get('player_id')
+    if not player_id:
+        player_id = "temp_" + request.sid
+
+    game.add_player(request.sid, name, player_id)
     emit('player_list_update', game.get_player_list(), broadcast=True)
-    print(f"Player joined: {name}")
+    print(f"Player joined: {name} ({player_id})")
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -50,16 +54,27 @@ def handle_disconnect():
 @socketio.on('buzz')
 def handle_buzz():
     if game.handle_buzz(request.sid):
-        emit('buzz_winner', {'sid': request.sid, 'name': game.players[request.sid].name}, broadcast=True)
-        # Start Answer Timer (10s)
-        emit('start_timer', {'duration': 10}, broadcast=True)
+        emit('play_sound', {'name': 'buzz'}, broadcast=True)
+        p = game.get_player_by_sid(request.sid)
+        name = p.name if p else "Unknown"
+        emit('buzz_winner', {'sid': request.sid, 'name': name}, broadcast=True)
+        # Start Answer Timer (10s) with Countdown
+        emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
+
+def buzz_timeout_task():
+    socketio.sleep(5)
+    # Check if someone buzzed or if buzzers were re-locked
+    if not game.current_buzzer and not game.buzzers_locked:
+        game.lock_buzzers()
+        emit('play_sound', {'name': 'times_up'}, broadcast=True)
 
 @socketio.on('admin_clear_buzzers')
 def handle_clear_buzzers():
     game.clear_buzzers()
     emit('buzzers_cleared', broadcast=True)
-    # Start Buzz Timer (5s)
-    emit('start_timer', {'duration': 5}, broadcast=True)
+    # Start Buzz Timer (5s) with countdown
+    emit('start_timer', {'duration': 5, 'show_countdown': True}, broadcast=True)
+    socketio.start_background_task(buzz_timeout_task)
 
 @socketio.on('admin_select_clue')
 def handle_select_clue(data):
@@ -71,6 +86,18 @@ def handle_select_clue(data):
         game.current_clue = clue
         if clue['is_daily_double']:
              game.is_daily_double_turn = True
+             emit('play_sound', {'name': 'daily_double'}, broadcast=True)
+
+             # Notify Admin of Control Player
+             if game.control_player:
+                 p = game.players.get(game.control_player)
+                 if p:
+                     # We send SID if connected, else name?
+                     # Admin uses SID for setBuzzer logic.
+                     # If p.sid is None (disconnected), we can't select them effectively for buzzing?
+                     # But DD logic might be manual anyway.
+                     emit('assign_dd_control', {'sid': p.sid, 'name': p.name})
+
              emit('show_daily_double', clue, broadcast=True)
         else:
              game.is_daily_double_turn = False
@@ -86,16 +113,24 @@ def handle_set_wager(data):
     # Now show the clue
     emit('show_clue', game.current_clue, broadcast=True)
 
+def close_clue_task(cat_idx, clue_idx, answer_text):
+    # Show answer
+    emit('show_answer_text', {'text': answer_text}, broadcast=True)
+    socketio.sleep(3) # Wait 3s
+    # Close
+    game.mark_answered(cat_idx, clue_idx)
+    game.current_clue = None
+    game.is_daily_double_turn = False
+    emit('hide_clue', broadcast=True)
+    emit('update_board_state', {'cat_idx': cat_idx, 'clue_idx': clue_idx}, broadcast=True)
+
 @socketio.on('admin_close_clue')
 def handle_close_clue():
     if game.current_clue:
         cat_idx = game.current_clue['cat_idx']
         clue_idx = game.current_clue['clue_idx']
-        game.mark_answered(cat_idx, clue_idx)
-        game.current_clue = None
-        game.is_daily_double_turn = False
-        emit('hide_clue', broadcast=True)
-        emit('update_board_state', {'cat_idx': cat_idx, 'clue_idx': clue_idx}, broadcast=True)
+        answer = game.current_clue['answer']
+        socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
 
 @socketio.on('admin_update_score')
 def handle_update_score(data):
@@ -108,6 +143,32 @@ def handle_update_score(data):
 
     game.update_score(sid, points)
     emit('score_update', game.get_player_list(), broadcast=True)
+
+    if points > 0:
+        # Correct
+        emit('play_sound', {'name': 'correct'}, broadcast=True)
+        # Close Clue Sequence
+        if game.current_clue:
+            cat_idx = game.current_clue['cat_idx']
+            clue_idx = game.current_clue['clue_idx']
+            answer = game.current_clue['answer']
+            socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
+    else:
+        # Incorrect
+        emit('play_sound', {'name': 'incorrect'}, broadcast=True)
+        # Re-open buzzers logic?
+        # Standard: Clear buzzers, allow others to buzz.
+        # Unless it was Daily Double (then close).
+        if game.is_daily_double_turn:
+             # Close
+            if game.current_clue:
+                cat_idx = game.current_clue['cat_idx']
+                clue_idx = game.current_clue['clue_idx']
+                answer = game.current_clue['answer']
+                socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
+        else:
+             game.clear_buzzers()
+             emit('buzzers_cleared', broadcast=True)
 
 @socketio.on('admin_start_round_2')
 def handle_start_round_2():
@@ -131,29 +192,34 @@ def handle_fj_wager(data):
         wager = int(data['wager'])
     except:
         wager = 0
-    game.fj_wagers[request.sid] = wager
-    emit('admin_fj_status', {'sid': request.sid, 'has_wager': True, 'has_answer': False}, broadcast=True)
+
+    p = game.get_player_by_sid(request.sid)
+    if p:
+        game.fj_wagers[p.pid] = wager
+        emit('admin_fj_status', {'pid': p.pid, 'sid': request.sid, 'has_wager': True, 'has_answer': False}, broadcast=True)
 
 @socketio.on('admin_reveal_fj_clue')
 def handle_reveal_fj_clue():
     clue_text = game.final_jeopardy['text']
     emit('show_fj_clue', {'text': clue_text}, broadcast=True)
-    # Start 30s timer
-    emit('start_timer', {'duration': 30}, broadcast=True)
+    # Start 30s timer with countdown
+    emit('start_timer', {'duration': 30, 'show_countdown': True}, broadcast=True)
 
 @socketio.on('player_fj_answer')
 def handle_fj_answer(data):
     answer = data['answer']
-    game.fj_answers[request.sid] = answer
-    emit('admin_fj_status', {'sid': request.sid, 'has_wager': True, 'has_answer': True, 'answer': answer}, broadcast=True)
+    p = game.get_player_by_sid(request.sid)
+    if p:
+        game.fj_answers[p.pid] = answer
+        emit('admin_fj_status', {'pid': p.pid, 'sid': request.sid, 'has_wager': True, 'has_answer': True, 'answer': answer}, broadcast=True)
 
 @socketio.on('admin_grade_fj')
 def handle_grade_fj(data):
-    sid = data['sid']
+    pid = data['pid'] # Expect PID
     correct = data['correct']
-    wager = game.fj_wagers.get(sid, 0)
+    wager = game.fj_wagers.get(pid, 0)
     points = wager if correct else -wager
-    game.update_score(sid, points)
+    game.update_score_by_pid(pid, points)
     emit('score_update', game.get_player_list(), broadcast=True)
 
 if __name__ == '__main__':

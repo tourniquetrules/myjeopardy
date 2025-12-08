@@ -3,23 +3,28 @@ import random
 import os
 
 class Player:
-    def __init__(self, sid, name):
-        self.sid = sid
+    def __init__(self, pid, name, sid=None):
+        self.pid = pid
         self.name = name
+        self.sid = sid
         self.score = 0
+        self.connected = True
 
     def to_dict(self):
         return {
             'sid': self.sid,
+            'pid': self.pid,
             'name': self.name,
-            'score': self.score
+            'score': self.score,
+            'connected': self.connected
         }
 
 class Game:
     def __init__(self):
-        self.players = {}  # sid -> Player
+        self.players = {}  # pid -> Player
+        self.sid_to_pid = {} # sid -> pid
         self.buzzers_locked = True
-        self.current_buzzer = None
+        self.current_buzzer = None # SID
         self.all_data = {}
         self.round_data = []
         self.final_jeopardy = {}
@@ -28,10 +33,11 @@ class Game:
         self.current_clue = None
         self.current_wager = 0
         self.is_daily_double_turn = False
-        self.fj_wagers = {}
-        self.fj_answers = {}
+        self.fj_wagers = {} # sid -> amount (should use pid now?)
+        self.fj_answers = {} # sid -> text
         self.in_final_jeopardy = False
         self.current_round = 1
+        self.control_player = None # PID
         self.load_data()
         self.reset_board()
 
@@ -69,15 +75,35 @@ class Game:
         self.round_data = self.all_data['round_2']
         self.reset_board()
 
-    def add_player(self, sid, name):
-        self.players[sid] = Player(sid, name)
+    def add_player(self, sid, name, pid):
+        if pid in self.players:
+            # Reconnect
+            p = self.players[pid]
+            p.sid = sid
+            p.name = name
+            p.connected = True
+        else:
+            # New
+            p = Player(pid, name, sid)
+            self.players[pid] = p
+
+        self.sid_to_pid[sid] = pid
 
     def remove_player(self, sid):
-        if sid in self.players:
-            del self.players[sid]
+        if sid in self.sid_to_pid:
+            pid = self.sid_to_pid[sid]
+            if pid in self.players:
+                self.players[pid].connected = False
+            del self.sid_to_pid[sid]
 
     def get_player_list(self):
         return [p.to_dict() for p in self.players.values()]
+
+    def get_player_by_sid(self, sid):
+        if sid in self.sid_to_pid:
+            pid = self.sid_to_pid[sid]
+            return self.players.get(pid)
+        return None
 
     def handle_buzz(self, sid):
         if self.buzzers_locked:
@@ -97,8 +123,17 @@ class Game:
         self.buzzers_locked = True
 
     def update_score(self, sid, points):
-        if sid in self.players:
-            self.players[sid].score += points
+        p = self.get_player_by_sid(sid)
+        if p:
+            p.score += points
+            if points > 0:
+                self.control_player = p.pid
+
+    def update_score_by_pid(self, pid, points):
+        if pid in self.players:
+            self.players[pid].score += points
+            if points > 0:
+                self.control_player = pid
 
     def get_clue(self, cat_idx, clue_idx):
         if 0 <= cat_idx < len(self.round_data):
