@@ -44,7 +44,6 @@
         </div>
 
         <div class="control-group">
-            <button onclick="openBuzzers()">Open Buzzers</button>
             <button onclick="clearBuzzers()">Clear Buzzers (Manual)</button>
         </div>
 
@@ -155,7 +154,7 @@
     });
 
     socket.on('update_board_state', (data) => {
-        $(`#admin-cell-${data.cat_idx}-${data.clue_idx}`).prop('disabled', true);
+        $(`#admin-cell-${data.cat_idx}-${data.clue_idx}`).prop('disabled', true).css('visibility', 'hidden');
         // Reset local state
         $('#admin-clue-info').text("None");
         $('#admin-answer-info').text("");
