@@ -47,6 +47,11 @@
     <!-- Countdown and Answer Overlays -->
     <div id="countdown-timer" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); font-size:10rem; color:red; z-index:200; text-shadow: 2px 2px 0 black; font-weight: bold;">10</div>
     <div id="answer-overlay" style="display:none; position:fixed; bottom:20%; width:100%; text-align:center; font-size:4rem; color:yellow; z-index:200; background:rgba(0,0,0,0.8); padding: 20px; font-weight: bold;">ANSWER: <span id="answer-text-content"></span></div>
+
+    <div id="audio-enable-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;">
+        <h1>Click to Enable Audio</h1>
+        <button id="enable-audio-btn" style="padding: 20px 40px; font-size: 2rem; cursor: pointer;">Start Game</button>
+    </div>
 </div>
 
 <script>
@@ -58,6 +63,13 @@
         daily_double: new Audio('/static/assets/audio/daily_double.wav'),
         times_up: new Audio('/static/assets/audio/times_up.wav')
     };
+
+    $('#enable-audio-btn').click(() => {
+        // Prime audio
+        sounds.buzz.play().catch(e => {});
+        sounds.buzz.pause();
+        $('#audio-enable-overlay').hide();
+    });
 
     function updateScoreboard(players) {
         const sb = $('#scoreboard');
