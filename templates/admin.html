@@ -193,6 +193,10 @@
         location.reload();
     });
 
+    socket.on('control_update', (data) => {
+        $('#control-indicator').text("Control: " + data.name);
+    });
+
     let fjPlayers = {}; // sid -> {name, wagered, answered, answerText, score, graded}
 
     function updatePlayers(players) {
