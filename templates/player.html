@@ -55,6 +55,20 @@
         $('#status').text("GO!");
     });
 
+    socket.on('buzzers_reopened', (data) => {
+        // Check if this player is locked out
+        const lockedOut = data.locked_out || [];
+        if (lockedOut.includes(socket.id)) {
+            // This player already buzzed incorrectly, stay disabled
+            $('#buzz-btn').prop('disabled', true).removeClass('buzzed-winner').addClass('buzzed-loser').text("LOCKED OUT");
+            $('#status').text("You already answered");
+        } else {
+            // Re-enable buzzer for this player
+            $('#buzz-btn').prop('disabled', false).removeClass('buzzed-winner buzzed-loser').text("BUZZ");
+            $('#status').text("GO!");
+        }
+    });
+
     socket.on('buzz_winner', (data) => {
         $('#buzz-btn').prop('disabled', true);
         if (data.name === name) {

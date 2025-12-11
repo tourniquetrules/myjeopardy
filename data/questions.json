@@ -1,211 +1,211 @@
 {
   "round_1": [
     {
-      "category": "Christmas Carols",
+      "category": "The Bible Does Not Say",
       "clues": [
         {
           "value": 200,
-          "text": "Complete the lyric: 'Silent night, holy night, all is calm, all is ___'",
-          "answer": "Bright",
+          "text": "While tradition and songs say there were three of them, the Bible never specifies the number of these visitors.",
+          "answer": "Who are the Wise Men (Magi)?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "This song asks, 'Do You Hear What I Hear?'",
-          "answer": "Do You Hear What I Hear?",
+          "text": "Despite almost every painting depicting one, the Gospels never mention Mary riding this animal to Bethlehem.",
+          "answer": "What is a donkey?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "In 'Jingle Bells', this is what it is fun to ride in.",
-          "answer": "A one-horse open sleigh",
+          "text": "The Bible never says Jesus was born in a stable or a cave, but specifically mentions he was placed here because there was no room in the guest room.",
+          "answer": "What is a manger (or feed trough)?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "This carol tells us to 'Deck the halls with boughs of holly'.",
-          "answer": "Deck the Halls",
+          "text": "While 'Hark the Herald Angels Sing' suggests otherwise, the Bible does not record the angels doing this specific action; it says they 'said' or 'praised.'",
+          "answer": "What is singing?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "This King of Rock and Roll had a 'Blue Christmas'.",
-          "answer": "Elvis Presley",
+          "text": "Often depicted as royalty, the Bible never refers to the Magi as these.",
+          "answer": "What are Kings?",
           "type": "text"
         }
       ]
     },
     {
-      "category": "Bible Characters",
+      "category": "Prophet Margins",
       "clues": [
         {
           "value": 200,
-          "text": "He built an ark to survive the flood.",
-          "answer": "Noah",
+          "text": "This 'major' prophet wrote, 'For unto us a Child is born, unto us a Son is given.'",
+          "answer": "Who is Isaiah?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "He was swallowed by a great fish.",
-          "answer": "Jonah",
+          "text": "The book of Micah predicted the Messiah would be born in this specific 'little' town.",
+          "answer": "What is Bethlehem?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "He led the Israelites out of Egypt.",
-          "answer": "Moses",
+          "text": "In Matthew, the Holy Family flees to this country to fulfill the prophecy 'Out of [Blank] I called my son.'",
+          "answer": "What is Egypt?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "He defeated the giant Goliath with a sling and a stone.",
-          "answer": "David",
+          "text": "Jeremiah 31 mentions a voice weeping in Ramah, foreshadowing this tragic event ordered by Herod.",
+          "answer": "What is the Massacre of the Innocents (or the killing of the baby boys)?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "He was the strongest man in the Bible but lost his strength when his hair was cut.",
-          "answer": "Samson",
+          "text": "The lineage of Jesus is often traced back to this son of Jacob, as the 'Lion of the tribe of [Blank].'",
+          "answer": "Who is Judah?",
           "type": "text"
         }
       ]
     },
     {
-      "category": "The Nativity",
+      "category": "Geneal-o-Gees",
       "clues": [
         {
           "value": 200,
-          "text": "The city where Jesus was born.",
-          "answer": "Bethlehem",
+          "text": "He was the father of John the Baptist and was struck mute until the baby was born.",
+          "answer": "Who is Zechariah?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "The angel who told Mary she would give birth to Jesus.",
-          "answer": "Gabriel",
+          "text": "In Matthew's genealogy, this King is the most famous ancestor listed, other than Abraham.",
+          "answer": "Who is David?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "Gifts brought by the Wise Men: Gold, Frankincense, and ___.",
-          "answer": "Myrrh",
+          "text": "According to Luke 3, Jesus was 'supposedly' the son of Joseph, who was the son of this man (Joseph's father).",
+          "answer": "Who is Heli? (Note: Matthew lists Jacob; this is a great trivia nuance)",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "King Herod ordered the death of infants in this city hoping to kill the Messiah.",
-          "answer": "Bethlehem",
+          "text": "This ruthlessly jealous King was the father of the Herod who later put Jesus on trial.",
+          "answer": "Who is Herod the Great?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "Because there was no room in the inn, Jesus was laid in this.",
-          "answer": "A Manger",
+          "text": "This woman is one of the few mentioned in Matthew's genealogy; she was not an Israelite but a Moabite.",
+          "answer": "Who is Ruth?",
           "type": "text"
         }
       ]
     },
     {
-      "category": "Christmas Movies",
+      "category": "Frankincense & \"Sense\"",
       "clues": [
         {
           "value": 200,
-          "text": "In this movie, Kevin McCallister is left behind when his family flies to Paris.",
-          "answer": "Home Alone",
+          "text": "Of the three gifts, this one is a hardened gum-like resin used in incense and perfume.",
+          "answer": "What is Frankincense?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "The Grinch tries to steal Christmas from this town.",
-          "answer": "Whoville",
+          "text": "This gift, a dried sap used in embalming, symbolically pointed toward Jesus' future death.",
+          "answer": "What is Myrrh?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "Buddy the Elf travels to New York to find his father in this 2003 film.",
-          "answer": "Elf",
+          "text": "In the Old Testament, this gift was often required for overlaying the Ark of the Covenant and Temple furniture.",
+          "answer": "What is Gold?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "This character says 'Bah Humbug' in 'A Christmas Carol'.",
-          "answer": "Ebenezer Scrooge",
+          "text": "According to Isaiah 60:6, camels from Midian and Ephah would bring gold and frankincense, but notably, this gift is omitted from the prophecy of the future Kingdom.",
+          "answer": "What is Myrrh? (Because Myrrh symbolizes death/suffering, which won't exist in the future Kingdom)",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "In 'It's a Wonderful Life', an angel named Clarence helps this man.",
-          "answer": "George Bailey",
+          "text": "In the ancient world, Frankincense was harvested primarily from trees in this region (modern-day Oman/Yemen).",
+          "answer": "What is Arabia (or the Arabian Peninsula)?",
           "type": "text"
         }
       ]
     },
     {
-      "category": "General Bible Trivia",
+      "category": "Silent \"K\"nights",
       "clues": [
         {
           "value": 200,
-          "text": "The first book of the Bible.",
-          "answer": "Genesis",
+          "text": "What the shepherds did when they arrived at the manger to honor the baby.",
+          "answer": "What is Kneel?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "The number of disciples Jesus had.",
-          "answer": "12",
+          "text": "You use this tool to chop firewood for the Yule log (or to spread butter).",
+          "answer": "What is a Knife?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "The shortest verse in the Bible is '___ wept'.",
-          "answer": "Jesus",
+          "text": "This body part might be 'bowed' in prayer.",
+          "answer": "What is the Knee?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "He is known as the 'Father of Many Nations'.",
-          "answer": "Abraham",
+          "text": "To rap on a door, like Joseph seeking room at the inn.",
+          "answer": "What is Knock?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "The place where Adam and Eve lived before the fall.",
-          "answer": "Garden of Eden",
+          "text": "A skill or certainty; in the Bible, the Tree of [This] of Good and Evil.",
+          "answer": "What is Knowledge?",
           "type": "text"
         }
       ]
     },
     {
-      "category": "Winter Wonderland",
+      "category": "That's Not in the Script",
       "clues": [
         {
           "value": 200,
-          "text": "A snowman might have a nose made of this vegetable.",
-          "answer": "Carrot",
+          "text": "We often depict the Magi arriving the night of the birth, but Matthew 2:11 says they entered this structure, not a stable.",
+          "answer": "What is a House?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "These unique ice crystals fall from the sky.",
-          "answer": "Snowflakes",
+          "text": "While Christmas cards show a bright star over the manger, the Bible only mentions the star appearing to these people.",
+          "answer": "Who are the Magi (Wise Men)? (The shepherds were guided by an angel, not the star)",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "This drink is often served with marshmallows.",
-          "answer": "Hot Chocolate / Cocoa",
+          "text": "Herod ordered the death of boys in Bethlehem under this age, suggesting Jesus may have been a toddler when the Wise Men arrived.",
+          "answer": "What is Two Years Old?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "This fuzzy animal hibernates during the winter.",
-          "answer": "Bear",
+          "text": "The Bible never actually says Jesus was born on December 25th; this date was likely chosen to coincide with (or replace) this Roman winter solstice festival.",
+          "answer": "What is Saturnalia (or Sol Invictus)?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "The winter solstice is the ___ day of the year.",
-          "answer": "Shortest",
+          "text": "Tradition says the forbidden fruit in Eden was an apple (often associated with Christmas ornaments), but the Hebrew text simply calls it this.",
+          "answer": "What is Fruit? (Or peri)",
           "type": "text"
         }
       ]
@@ -223,33 +223,33 @@
       ]
     },
     {
-      "category": "Christmas Foods",
+      "category": "Oh \"Baby\"",
       "clues": [
-        {"value": 400, "text": "This striped candy is shaped like a shepherd's crook.", "answer": "Candy Cane", "type": "text"},
-        {"value": 800, "text": "A traditional drink made with milk, cream, sugar, and eggs.", "answer": "Eggnog", "type": "text"},
-        {"value": 1200, "text": "These roasted nuts are mentioned in 'The Christmas Song'.", "answer": "Chestnuts", "type": "text"},
-        {"value": 1600, "text": "This spice cake is often built into houses.", "answer": "Gingerbread", "type": "text"},
-        {"value": 2000, "text": "In the UK, this is often hidden inside the Christmas Pudding.", "answer": "A Coin / Sixpence", "type": "text"}
+        {"value": 400, "text": "This prophet leaped in his mother's womb when Mary (pregnant with Jesus) walked into the room.", "answer": "Who is John the Baptist?", "type": "text"},
+        {"value": 800, "text": "A chocolate bar named 'Baby [Blank],' or the Moabitess who was the great-grandmother of David.", "answer": "Who is Ruth?", "type": "text"},
+        {"value": 1200, "text": "'Ice Ice Baby' is a song by Vanilla Ice; this is the 'Ice' that covers the top of Mount Hermon year-round.", "answer": "What is Snow?", "type": "text"},
+        {"value": 1600, "text": "Moses was a baby hidden in a basket made of papyrus and this sticky substance (also used on Noah's Ark).", "answer": "What is Pitch (or Tar/Bitumen)?", "type": "text"},
+        {"value": 2000, "text": "In 1 Kings 3, this wise King suggested cutting a baby in half to determine the real mother.", "answer": "Who is Solomon?", "type": "text"}
       ]
     },
     {
-      "category": "The Wise Men",
+      "category": "Traditional Twists",
       "clues": [
-        {"value": 400, "text": "The Wise Men came from this direction.", "answer": "The East", "type": "text"},
-        {"value": 800, "text": "They followed this celestial object to find Jesus.", "answer": "A Star", "type": "text"},
-        {"value": 1200, "text": "Number of Wise Men mentioned in the Bible.", "answer": "None (It says three gifts, not three men)", "type": "text"},
-        {"value": 1600, "text": "This gift symbolizes Jesus' role as a High Priest.", "answer": "Frankincense", "type": "text"},
-        {"value": 2000, "text": "They returned to their country by another way to avoid this King.", "answer": "Herod", "type": "text"}
+        {"value": 400, "text": "This popular soda company is often credited with solidifying the modern image of Santa Claus in red and white suits in the 1930s.", "answer": "What is Coca-Cola?", "type": "text"},
+        {"value": 800, "text": "'Jingle Bells' was not originally written for Christmas, but for this American holiday.", "answer": "What is Thanksgiving?", "type": "text"},
+        {"value": 1200, "text": "Good King Wenceslas looked out on the Feast of Stephen, which falls on this date (the day after Christmas).", "answer": "What is December 26th?", "type": "text"},
+        {"value": 1600, "text": "In the song 'The Twelve Days of Christmas,' the 'Golden Rings' actually refer to these birds, not jewelry (keeping with the bird theme).", "answer": "What are Pheasants (Ring-necked Pheasants)?", "type": "text"},
+        {"value": 2000, "text": "This ballet, now a Christmas staple, was a total flop when it premiered in Russia in 1892.", "answer": "What is The Nutcracker?", "type": "text"}
       ]
     },
     {
-      "category": "Christmas Traditions",
+      "category": "Sleigh My Name",
       "clues": [
-        {"value": 400, "text": "People hang these by the chimney with care.", "answer": "Stockings", "type": "text"},
-        {"value": 800, "text": "This plant is often hung in doorways for people to kiss under.", "answer": "Mistletoe", "type": "text"},
-        {"value": 1200, "text": "This ballet is a popular Christmas tradition.", "answer": "The Nutcracker", "type": "text"},
-        {"value": 1600, "text": "The calendar used to count down the days to Christmas.", "answer": "Advent Calendar", "type": "text"},
-        {"value": 2000, "text": "In this country, St. Lucia Day is celebrated on December 13th.", "answer": "Sweden", "type": "text"}
+        {"value": 400, "text": "This actor, whose first name is a festive prickly plant, played Michael Scott's girlfriend in The Office and the voice of Elastigirl.", "answer": "Who is Holly Hunter?", "type": "text"},
+        {"value": 800, "text": "He's the 'Saint' of an actor who starred in Leaving Las Vegas and National Treasure.", "answer": "Who is Nicolas (Nick) Cage?", "type": "text"},
+        {"value": 1200, "text": "This 'song-like' lady was the first female writer for Saturday Night Live and starred in The Burnett Show.", "answer": "Who is Carol Burnett?", "type": "text"},
+        {"value": 1600, "text": "Her first name is the night before Christmas; she is the rapper who starred in the TV show Queens and had a hit with 'Let Me Blow Ya Mind.'", "answer": "Who is Eve?", "type": "text"},
+        {"value": 2000, "text": "This actress shares a name with the frankincense-bearing visitors; she famously starred in Donnie Darko and The Dark Knight.", "answer": "Who is Maggie Gyllenhaal? (Magi)", "type": "text"}
       ]
     },
     {
@@ -263,13 +263,13 @@
       ]
     },
     {
-      "category": "Santa's Reindeer",
+      "category": "The \"Wrap\" Sheet",
       "clues": [
-        {"value": 400, "text": "The reindeer with a red nose.", "answer": "Rudolph", "type": "text"},
-        {"value": 800, "text": "The two reindeer whose names start with 'C'.", "answer": "Comet and Cupid", "type": "text"},
-        {"value": 1200, "text": "This reindeer shares a name with a female fox.", "answer": "Vixen", "type": "text"},
-        {"value": 1600, "text": "Donner and Blitzen's names mean Thunder and Lightning in this language.", "answer": "German", "type": "text"},
-        {"value": 2000, "text": "The number of reindeer in the poem 'Twas the Night Before Christmas'.", "answer": "Eight (Rudolph wasn't in the original)", "type": "text"}
+        {"value": 400, "text": "In Home Alone, Harry and Marv call themselves by this aquatic nickname before they change it to the 'Sticky Bandits.'", "answer": "What are the Wet Bandits?", "type": "text"},
+        {"value": 800, "text": "In National Lampoon's Christmas Vacation, Cousin Eddie kidnaps this corporate boss to demand a Christmas bonus.", "answer": "Who is Frank Shirley?", "type": "text"},
+        {"value": 1200, "text": "This 1988 action movie features a heist at Nakatomi Plaza, led by Hans Gruber.", "answer": "What is Die Hard?", "type": "text"},
+        {"value": 1600, "text": "In The Santa Clause, Tim Allen is arrested for kidnapping and questioned by a psychiatrist played by this actor (also known for Judge Reinhold... wait, that's the actor's name).", "answer": "Who is Judge Reinhold? (Great trivia/pun overlap)", "type": "text"},
+        {"value": 2000, "text": "In A Christmas Story, Ralphie fears 'the chair' and prison bars after doing this to Scott Farkus.", "answer": "What is beating him up (punching/fighting him)?", "type": "text"}
       ]
     }
   ],

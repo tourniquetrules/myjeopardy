@@ -33,6 +33,8 @@ class Game:
         self.current_clue = None
         self.current_wager = 0
         self.is_daily_double_turn = False
+        self.incorrect_buzzers = set()  # SIDs of players who buzzed incorrectly on current clue
+        self.buzz_session = 0  # Incremented each time buzzers are opened, to invalidate old timeouts
         self.fj_wagers = {} # sid -> amount (should use pid now?)
         self.fj_answers = {} # sid -> text
         self.in_final_jeopardy = False
@@ -110,6 +112,8 @@ class Game:
             return False
         if self.current_buzzer:
             return False
+        if sid in self.incorrect_buzzers:
+            return False  # Player already buzzed incorrectly on this clue
 
         self.current_buzzer = sid
         self.buzzers_locked = True
@@ -118,6 +122,8 @@ class Game:
     def clear_buzzers(self):
         self.current_buzzer = None
         self.buzzers_locked = False
+        self.incorrect_buzzers = set()  # Reset for new clue
+        self.buzz_session += 1  # Invalidate old timeout tasks
 
     def lock_buzzers(self):
         self.buzzers_locked = True

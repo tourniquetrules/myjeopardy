@@ -119,7 +119,8 @@
 
     socket.on('show_daily_double', (clue) => {
         $('#clue-category').text(clue.category);
-        $('#clue-text').text("DAILY DOUBLE");
+        let ddText = `DAILY DOUBLE!<br><br><span style="font-size: 2rem; color: gold;">${clue.dd_player_name}</span><br><span style="font-size: 1.5rem;">Score: $${clue.dd_player_score}</span>`;
+        $('#clue-text').html(ddText);
         $('#clue-overlay').show();
         $('#media-container').empty();
         $('#timer-fill').css('width', '100%');

@@ -53,20 +53,26 @@ def handle_disconnect():
 
 @socketio.on('buzz')
 def handle_buzz():
+    print(f"Buzz received from {request.sid}. Locked: {game.buzzers_locked}, Current: {game.current_buzzer}, Incorrect: {game.incorrect_buzzers}")
     if game.handle_buzz(request.sid):
         emit('play_sound', {'name': 'buzz'}, broadcast=True)
         p = game.get_player_by_sid(request.sid)
         name = p.name if p else "Unknown"
+        print(f"Buzz accepted! Winner: {name}")
         emit('buzz_winner', {'sid': request.sid, 'name': name}, broadcast=True)
         # Start Answer Timer (10s) with Countdown
         emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
 
-def buzz_timeout_task():
+def buzz_timeout_task(session_id):
     socketio.sleep(10) # 10s timer
-    # Check if someone buzzed or if buzzers were re-locked
+    # Check if this session is still valid and no one buzzed
+    if game.buzz_session != session_id:
+        print(f"Timeout task cancelled (session {session_id} != {game.buzz_session})")
+        return
     if not game.current_buzzer and not game.buzzers_locked:
         game.lock_buzzers()
-        socketio.emit('play_sound', {'name': 'times_up'}, broadcast=True)
+        socketio.emit('play_sound', {'name': 'times_up'})
+        print("Buzz timeout - time's up!")
 
 @socketio.on('admin_clear_buzzers')
 def handle_clear_buzzers():
@@ -74,7 +80,7 @@ def handle_clear_buzzers():
     emit('buzzers_cleared', broadcast=True)
     # Start Buzz Timer (10s) with countdown - Manual override if needed
     emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
-    socketio.start_background_task(buzz_timeout_task)
+    socketio.start_background_task(buzz_timeout_task, game.buzz_session)
 
 @socketio.on('admin_select_clue')
 def handle_select_clue(data):
@@ -88,14 +94,30 @@ def handle_select_clue(data):
              game.is_daily_double_turn = True
              emit('play_sound', {'name': 'daily_double'}, broadcast=True)
 
-             # Notify Admin of Control Player
+             # Get control player info for DD
+             dd_player_name = "No one"
+             dd_player_score = 0
+             dd_max_wager = clue['value']  # Default to clue value if no control or negative score
              if game.control_player:
                  p = game.players.get(game.control_player)
                  if p:
-                     # Check connection for SID usage, but send name regardless
-                     emit('assign_dd_control', {'sid': p.sid, 'name': p.name})
+                     dd_player_name = p.name
+                     dd_player_score = p.score
+                     # Max wager: player's score if positive, otherwise clue value (minimum bet)
+                     # If player has less than clue value, they can still bet up to clue value
+                     if p.score <= 0:
+                         dd_max_wager = clue['value']
+                     else:
+                         dd_max_wager = p.score
+                     # Notify Admin of Control Player
+                     emit('assign_dd_control', {'sid': p.sid, 'name': p.name, 'score': p.score, 'max_wager': dd_max_wager})
 
-             emit('show_daily_double', clue, broadcast=True)
+             # Include player info in daily double display
+             dd_clue = dict(clue)
+             dd_clue['dd_player_name'] = dd_player_name
+             dd_clue['dd_player_score'] = dd_player_score
+             dd_clue['dd_max_wager'] = dd_max_wager
+             emit('show_daily_double', dd_clue, broadcast=True)
         else:
              game.is_daily_double_turn = False
              emit('show_clue', clue, broadcast=True)
@@ -104,7 +126,7 @@ def handle_select_clue(data):
              game.clear_buzzers()
              emit('buzzers_cleared', broadcast=True)
              emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
-             socketio.start_background_task(buzz_timeout_task)
+             socketio.start_background_task(buzz_timeout_task, game.buzz_session)
 
 @socketio.on('admin_set_wager')
 def handle_set_wager(data):
@@ -112,20 +134,34 @@ def handle_set_wager(data):
         wager = int(data['wager'])
     except:
         wager = 0
+    
+    # Validate wager - can't bet more than your score (or clue value if score is 0 or negative)
+    if game.control_player and game.current_clue:
+        p = game.players.get(game.control_player)
+        if p:
+            if p.score <= 0:
+                max_wager = game.current_clue['value']
+            else:
+                max_wager = p.score
+            wager = min(wager, max_wager)
+            wager = max(wager, 0)  # Can't bet negative
+    
     game.current_wager = wager
+    print(f"Daily Double wager set to: {wager}")
     # Now show the clue
     emit('show_clue', game.current_clue, broadcast=True)
 
 def close_clue_task(cat_idx, clue_idx, answer_text):
     # Show answer
-    socketio.emit('show_answer_text', {'text': answer_text}, broadcast=True)
-    socketio.sleep(3) # Wait 3s
+    socketio.emit('show_answer_text', {'text': answer_text})
+    socketio.sleep(5) # Wait 5s so people can read the answer
     # Close
     game.mark_answered(cat_idx, clue_idx)
     game.current_clue = None
     game.is_daily_double_turn = False
-    socketio.emit('hide_clue', broadcast=True)
-    socketio.emit('update_board_state', {'cat_idx': cat_idx, 'clue_idx': clue_idx}, broadcast=True)
+    game.incorrect_buzzers.clear()  # Reset for next clue
+    socketio.emit('hide_clue')
+    socketio.emit('update_board_state', {'cat_idx': cat_idx, 'clue_idx': clue_idx})
 
 @socketio.on('admin_close_clue')
 def handle_close_clue():
@@ -165,13 +201,25 @@ def handle_update_score(data):
     else:
         # Incorrect
         emit('play_sound', {'name': 'incorrect'}, broadcast=True)
-        # For Normal Clues: Close after incorrect (Single Attempt Rule)
-        # For DD: Close after incorrect.
-        if game.current_clue:
-            cat_idx = game.current_clue['cat_idx']
-            clue_idx = game.current_clue['clue_idx']
-            answer = game.current_clue['answer']
-            socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
+        # For DD: Close after incorrect (only one player can answer DD)
+        if game.is_daily_double_turn:
+            if game.current_clue:
+                cat_idx = game.current_clue['cat_idx']
+                clue_idx = game.current_clue['clue_idx']
+                answer = game.current_clue['answer']
+                socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
+        else:
+            # For Normal Clues: Re-enable buzzers for other players
+            # Track this player as having answered incorrectly
+            game.incorrect_buzzers.add(sid)
+            # Re-open buzzers but the incorrect player stays locked out
+            game.current_buzzer = None
+            game.buzzers_locked = False
+            game.buzz_session += 1  # Invalidate old timeout
+            print(f"Reopening buzzers after incorrect. Session: {game.buzz_session}, Locked out: {game.incorrect_buzzers}")
+            emit('buzzers_reopened', {'locked_out': list(game.incorrect_buzzers)}, broadcast=True)
+            emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
+            socketio.start_background_task(buzz_timeout_task, game.buzz_session)
 
 @socketio.on('admin_start_round_2')
 def handle_start_round_2():

@@ -1,0 +1,156 @@
+{
+  "round_1": [
+    {
+      "category": "Emoji Carols",
+      "clues": [
+        {
+          "value": 200,
+          "text": "🤫 🌃",
+          "answer": "What is Silent Night?",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "👀 💑 💋 🎅",
+          "answer": "What is I Saw Mommy Kissing Santa Claus?",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "🥁 👦",
+          "answer": "What is The Little Drummer Boy?",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "👵 🚗 🦌",
+          "answer": "What is Grandma Got Run Over by a Reindeer?",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "🚶 ❄️ ⛄ 🏔️",
+          "answer": "What is Walking in a Winter Wonderland?",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "category": "Category 2",
+      "clues": [
+        {"value": 200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Category 3",
+      "clues": [
+        {"value": 200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Category 4",
+      "clues": [
+        {"value": 200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Category 5",
+      "clues": [
+        {"value": 200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Category 6",
+      "clues": [
+        {"value": 200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    }
+  ],
+  "round_2": [
+    {
+      "category": "Round 2 Category 1",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Round 2 Category 2",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Round 2 Category 3",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Round 2 Category 4",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Round 2 Category 5",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    },
+    {
+      "category": "Round 2 Category 6",
+      "clues": [
+        {"value": 400, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 800, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1200, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 1600, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"},
+        {"value": 2000, "text": "Question placeholder", "answer": "Answer placeholder", "type": "text"}
+      ]
+    }
+  ],
+  "final_jeopardy": {
+    "category": "Final Category",
+    "text": "Final Jeopardy question placeholder",
+    "answer": "Final Jeopardy answer placeholder"
+  }
+}
