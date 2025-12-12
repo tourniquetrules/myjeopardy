@@ -60,8 +60,12 @@ def handle_buzz():
         name = p.name if p else "Unknown"
         print(f"Buzz accepted! Winner: {name}")
         emit('buzz_winner', {'sid': request.sid, 'name': name}, broadcast=True)
+        # Inform everyone that buzzers are now locked
+        emit('buzzers_locked', broadcast=True)
         # Start Answer Timer (10s) with Countdown
         emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
+        # Start server-side answer timeout to enforce answers
+        socketio.start_background_task(answer_timeout_task, request.sid, 10)
 
 def buzz_timeout_task(session_id):
     socketio.sleep(10) # 10s timer
@@ -72,7 +76,32 @@ def buzz_timeout_task(session_id):
     if not game.current_buzzer and not game.buzzers_locked:
         game.lock_buzzers()
         socketio.emit('play_sound', {'name': 'times_up'})
+        socketio.emit('buzzers_locked')
         print("Buzz timeout - time's up!")
+
+
+def answer_timeout_task(expected_sid, duration=10):
+    # Wait for the answer period (e.g., 10s). If the same SID is still the current_buzzer when time expires,
+    # treat it like an incorrect/no-answer and reopen buzzers for others.
+    socketio.sleep(duration)
+    # If buzzer changed or was cleared, abort
+    if game.current_buzzer != expected_sid:
+        print(f"Answer timeout cancelled (expected {expected_sid} != current {game.current_buzzer})")
+        return
+    # Treat as incorrect timeout - mark the player incorrect and require host to manually reopen buzzers
+    sid = expected_sid
+    p = game.get_player_by_sid(sid)
+    name = p.name if p else 'Unknown'
+    game.incorrect_buzzers.add(sid)
+    game.current_buzzer = None
+    # Keep buzzers locked until host explicitly re-opens them
+    game.buzzers_locked = True
+    game.buzz_session += 1
+    socketio.emit('play_sound', {'name': 'times_up'})
+    # Notify admin and board of timeout; do NOT reopen buzzers automatically
+    socketio.emit('player_timed_out', {'sid': sid, 'name': name})
+    socketio.emit('buzzers_locked')
+    print(f"Answer timeout: SID {sid} timed out, locked out. Session: {game.buzz_session}")
 
 @socketio.on('admin_clear_buzzers')
 def handle_clear_buzzers():
@@ -84,6 +113,10 @@ def handle_clear_buzzers():
 
 @socketio.on('admin_select_clue')
 def handle_select_clue(data):
+    # Prevent selecting a new clue while a clue is still active
+    if game.current_clue:
+        emit('select_rejected', {'reason': 'Previous clue must be closed before selecting another.'})
+        return
     cat_idx = data['cat_idx']
     clue_idx = data['clue_idx']
     clue = game.get_clue(cat_idx, clue_idx)
@@ -117,16 +150,18 @@ def handle_select_clue(data):
              dd_clue['dd_player_name'] = dd_player_name
              dd_clue['dd_player_score'] = dd_player_score
              dd_clue['dd_max_wager'] = dd_max_wager
+             # Clear any previous overlays/answers before showing a new clue
+             emit('hide_clue', broadcast=True)
              emit('show_daily_double', dd_clue, broadcast=True)
         else:
              game.is_daily_double_turn = False
+             # Clear previous overlays/answers and then show the clue
+             emit('hide_clue', broadcast=True)
              emit('show_clue', clue, broadcast=True)
 
-             # Auto Open Buzzers + 10s Timer
-             game.clear_buzzers()
-             emit('buzzers_cleared', broadcast=True)
-             emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
-             socketio.start_background_task(buzz_timeout_task, game.buzz_session)
+             # Do NOT auto-open buzzers -- host will manually open/clear buzzers
+             # Notify clients that a clue is shown and buzzers are still locked
+             emit('buzzers_locked', broadcast=True)
 
 @socketio.on('admin_set_wager')
 def handle_set_wager(data):
@@ -149,19 +184,29 @@ def handle_set_wager(data):
     game.current_wager = wager
     print(f"Daily Double wager set to: {wager}")
     # Now show the clue
+    # Clear any previous overlays/answers before revealing the daily double clue
+    emit('hide_clue', broadcast=True)
     emit('show_clue', game.current_clue, broadcast=True)
+    # For Daily Double: lock buzzers and start an answer timer for the DD answer window
+    if game.current_clue and game.current_clue.get('is_daily_double'):
+        game.buzzers_locked = True
+        game.current_buzzer = None
+        emit('buzzers_locked', broadcast=True)
+        # Start a DD answer timer (30s default)
+        emit('start_timer', {'duration': 30, 'show_countdown': True}, broadcast=True)
 
 def close_clue_task(cat_idx, clue_idx, answer_text):
     # Show answer
     socketio.emit('show_answer_text', {'text': answer_text})
-    socketio.sleep(5) # Wait 5s so people can read the answer
-    # Close
+    # Immediately close the clue; no wait
     game.mark_answered(cat_idx, clue_idx)
     game.current_clue = None
     game.is_daily_double_turn = False
     game.incorrect_buzzers.clear()  # Reset for next clue
     socketio.emit('hide_clue')
     socketio.emit('update_board_state', {'cat_idx': cat_idx, 'clue_idx': clue_idx})
+    # After closing a clue, ensure buzzers are locked until host opens them
+    socketio.emit('buzzers_locked')
 
 @socketio.on('admin_close_clue')
 def handle_close_clue():
@@ -192,12 +237,12 @@ def handle_update_score(data):
     if points > 0:
         # Correct
         emit('play_sound', {'name': 'correct'}, broadcast=True)
-        # Close Clue Sequence
+        # Show the answer but do NOT auto-close the clue; host must manually close it
         if game.current_clue:
-            cat_idx = game.current_clue['cat_idx']
-            clue_idx = game.current_clue['clue_idx']
             answer = game.current_clue['answer']
-            socketio.start_background_task(close_clue_task, cat_idx, clue_idx, answer)
+            emit('show_answer_text', {'text': answer}, broadcast=True)
+            # Prevent any running answer timeout for current buzzer — clear it
+            game.current_buzzer = None
     else:
         # Incorrect
         emit('play_sound', {'name': 'incorrect'}, broadcast=True)
@@ -220,6 +265,23 @@ def handle_update_score(data):
             emit('buzzers_reopened', {'locked_out': list(game.incorrect_buzzers)}, broadcast=True)
             emit('start_timer', {'duration': 10, 'show_countdown': True}, broadcast=True)
             socketio.start_background_task(buzz_timeout_task, game.buzz_session)
+
+
+@socketio.on('admin_set_score')
+def handle_set_score(data):
+    # Set player's score to an absolute value
+    sid = data.get('sid')
+    try:
+        new_score = int(data.get('score', 0))
+    except:
+        new_score = 0
+
+    p = game.get_player_by_sid(sid)
+    if p:
+        p.score = new_score
+        # Broadcast updated scores
+        emit('score_update', game.get_player_list(), broadcast=True)
+        print(f"Admin set score for {p.name} to {new_score}")
 
 @socketio.on('admin_start_round_2')
 def handle_start_round_2():
@@ -274,4 +336,9 @@ def handle_grade_fj(data):
     emit('score_update', game.get_player_list(), broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000, host='0.0.0.0')
+    import os
+
+    # Respect the PORT environment variable (useful for cloud deployments and tunnels)
+    port = int(os.environ.get('PORT', 5000))
+    # Run without the Werkzeug debugger/reloader to avoid restarts while tunneling
+    socketio.run(app, debug=False, port=port, host='0.0.0.0')

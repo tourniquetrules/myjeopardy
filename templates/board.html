@@ -2,10 +2,15 @@
 
 {% block content %}
 <div id="board-container">
-    <div style="text-align: center; margin-bottom: 10px;">
-        <h1 style="margin: 0; font-size: 3rem; text-transform: uppercase;">
-            {% if current_round == 1 %}JEOPARDY!{% else %}DOUBLE JEOPARDY!{% endif %}
-        </h1>
+    <div id="board-header">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h1 style="margin: 0; font-size: 3rem; text-transform: uppercase;">
+                {% if current_round == 1 %}JEOPARDY!{% else %}DOUBLE JEOPARDY!{% endif %}
+            </h1>
+        </div>
+        <div style="display:flex; justify-content:center; margin-bottom: 10px;">
+            <h3 id="buzzer-status" style="color: lightcoral;">Buzzers: CLOSED</h3>
+        </div>
     </div>
     <div id="game-grid">
         <!-- Headers -->
@@ -131,6 +136,7 @@
         $('#clue-overlay').hide();
         $('#answer-overlay').hide();
         $('#countdown-timer').hide();
+        $('#buzz-indicator').hide();
         if (countdownInterval) clearInterval(countdownInterval);
     });
 
@@ -143,6 +149,19 @@
 
     socket.on('buzz_winner', (data) => {
         $('#buzz-indicator').text(data.name).show();
+        // Slight pulse animation to draw attention
+        $('#buzz-indicator').css('transform', 'scale(1.05)');
+        setTimeout(() => { $('#buzz-indicator').css('transform', 'scale(1)'); }, 250);
+    });
+
+    socket.on('buzzers_cleared', () => {
+        $('#buzzer-status').text('Buzzers: OPEN').css('color', 'limegreen');
+    });
+    socket.on('buzzers_reopened', () => {
+        $('#buzzer-status').text('Buzzers: OPEN').css('color', 'limegreen');
+    });
+    socket.on('buzzers_locked', () => {
+        $('#buzzer-status').text('Buzzers: CLOSED').css('color', 'lightcoral');
     });
 
     let countdownInterval;

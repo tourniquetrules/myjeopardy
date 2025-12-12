@@ -6,6 +6,7 @@
     <h3>Score: $<span id="player-score">0</span></h3>
     <div id="status">Waiting...</div>
     <button id="buzz-btn" disabled>BUZZ</button>
+    <div id="player-timer" style="display:none; margin-top: 20px; font-size: 2rem; color: gold;"></div>
 </div>
 
 <div class="player-container" id="fj-wager-container" style="display:none;">
@@ -46,13 +47,24 @@
 
     const playerId = getPlayerId();
 
+    // Player state
+    let mySid = null;
+    let isMyTurn = false;
+    let playerCountdown = null;
+
     socket.on('connect', () => {
         socket.emit('join_game', {name: name, player_id: playerId});
+        mySid = socket.id;
     });
 
     socket.on('buzzers_cleared', () => {
         $('#buzz-btn').prop('disabled', false).removeClass('buzzed-winner buzzed-loser').text("BUZZ");
         $('#status').text("GO!");
+    });
+
+    socket.on('buzzers_locked', () => {
+        $('#buzz-btn').prop('disabled', true).removeClass('buzzed-winner buzzed-loser').text("BUZZ CLOSED");
+        $('#status').text("Waiting for host to open buzzers");
     });
 
     socket.on('buzzers_reopened', (data) => {
@@ -71,9 +83,11 @@
 
     socket.on('buzz_winner', (data) => {
         $('#buzz-btn').prop('disabled', true);
-        if (data.name === name) {
+        isMyTurn = (data.sid === mySid);
+        if (isMyTurn) {
             $('#buzz-btn').addClass('buzzed-winner').text("YOU BUZZED!");
             $('#status').text("Answer Now!");
+            startPlayerTimer(10);
         } else {
             $('#buzz-btn').addClass('buzzed-loser').text(data.name + " Buzzed");
             $('#status').text("Locked out");
@@ -90,6 +104,28 @@
     $('#buzz-btn').click(() => {
         socket.emit('buzz');
     });
+
+    function startPlayerTimer(duration) {
+        clearPlayerTimer();
+        let t = duration;
+        $('#player-timer').show().text(`Time: ${t}s`);
+        playerCountdown = setInterval(() => {
+            t -= 1;
+            if (t <= 0) {
+                clearPlayerTimer();
+                $('#player-timer').hide();
+            } else {
+                $('#player-timer').text(`Time: ${t}s`);
+            }
+        }, 1000);
+    }
+
+    function clearPlayerTimer() {
+        if (playerCountdown) {
+            clearInterval(playerCountdown);
+            playerCountdown = null;
+        }
+    }
 
     // Final Jeopardy
     socket.on('start_final_jeopardy', (data) => {
@@ -121,6 +157,29 @@
         $('#fj-answer-container').hide();
         $('#fj-wait').show();
     }
+
+    socket.on('start_timer', (data) => {
+        if (data.show_countdown && isMyTurn) {
+            startPlayerTimer(data.duration);
+        }
+    });
+
+    socket.on('hide_clue', () => {
+        clearPlayerTimer();
+        $('#player-timer').hide();
+        isMyTurn = false;
+    });
+
+    socket.on('player_timed_out', (data) => {
+        // If anyone times out, hide any player timers and show a message
+        clearPlayerTimer();
+        $('#player-timer').hide();
+        if (data && data.name) {
+            $('#status').text(`${data.name} timed out`);
+        } else {
+            $('#status').text('Player timed out');
+        }
+    });
 
 </script>
 {% endblock %}

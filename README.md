@@ -59,3 +59,64 @@ Edit `data/questions.json` to change categories, clues, and answers.
 
 - **Connection Issues:** Ensure all devices are on the same network. Check your firewall settings if players cannot connect.
 - **Audio:** Ensure the browser tab for the Board has permission to autoplay audio/video.
+
+## Cloudflare Tunnel (Optional)
+
+If you want to expose your local Jeopardy server to the internet using a secure Cloudflare Tunnel (so players can join remotely), follow these steps. This uses `cloudflared` (the Cloudflare Tunnels client), not `wrangler`.
+
+- Install `cloudflared` for Windows: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation
+- Authenticate with Cloudflare (opens a browser):
+   ```powershell
+   cloudflared tunnel login
+   ```
+- Create a named tunnel and capture the generated credentials file:
+   ```powershell
+   cloudflared tunnel create jeopardy-tunnel
+   ```
+   This creates a credentials file in `%USERPROFILE%\.cloudflared\` and a tunnel ID.
+- Create the DNS route (replace with your zone):
+   ```powershell
+   cloudflared tunnel route dns jeopardy-tunnel jeopardy.haydd.com
+   ```
+- Use the sample `jeopardy-tunnel/config.yml` (in this repo) or create your own, then run the tunnel:
+   ```powershell
+   cloudflared tunnel run jeopardy-tunnel
+   ```
+
+Notes:
+- If you don't want to persist a named tunnel, you can also run an ephemeral tunnel:
+   ```powershell
+   cloudflared tunnel --url http://localhost:5000
+   ```
+- `wrangler` is a separate tool used for Cloudflare Workers and Pages — it is not required for setting up a tunnel for this app. The `wrangler.toml` file is for deploying Cloudflare Workers/Pages assets; `cloudflared` manages tunnels to your origin server.
+
+If you want this to run automatically on startup, consider installing `cloudflared` as a Windows service or using a scheduled task (explainers are available in the Cloudflare docs).
+
+### Convenience script
+
+A helper PowerShell script `tunnel.ps1` is included in the project root to control the Cloudflare tunnel and the local app (optional). It supports `start`, `stop`, and `status` actions and saves PIDs to `%USERPROFILE%\.cloudflared`.
+
+- Start the tunnel:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start
+   ```
+- Start the tunnel and the app (in one command):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start -StartApp
+   ```
+- Stop the tunnel (and app if started by the script):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 stop
+   ```
+- Check status:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 status
+   ```
+
+Notes:
+- The script looks for `cloudflared` on PATH and falls back to `C:\Program Files (x86)\cloudflared\cloudflared.exe`.
+- Run the commands from the project directory or supply the full path to the script.
+- If you'd rather not use the script, you can run the tunnel manually with:
+   ```powershell
+   cloudflared tunnel run jeopardy-tunnel
+   ```

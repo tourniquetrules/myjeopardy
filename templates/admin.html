@@ -6,6 +6,9 @@
         <h2>Host Control</h2>
         <h3 id="control-indicator" style="color: yellow;">Control: None</h3>
     </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 10px 0 10px;">
+        <h4 id="buzzer-status" style="color: lightcoral; margin:0;">Buzzers: CLOSED</h4>
+    </div>
 
     <div id="admin-grid">
         <!-- Headers -->
@@ -45,13 +48,13 @@
         </div>
 
         <div class="control-group">
-            <button onclick="clearBuzzers()">Clear Buzzers (Manual)</button>
+            <button onclick="openBuzzers()">Open Buzzers (Manual)</button>
         </div>
 
         <div class="control-group" id="scoring-controls">
             <button onclick="grade(true)">Correct</button>
             <button onclick="grade(false)">Incorrect</button>
-            <button onclick="closeClue()">Close Clue (No Winner)</button>
+            <button onclick="closeClue()">Close Clue (Manual)</button>
         </div>
 
         <h3>Current Buzzer: <span id="admin-buzzer">None</span></h3>
@@ -59,6 +62,18 @@
         <div id="manual-player-select" style="margin-top: 10px; border-top: 1px solid #555; padding-top: 10px;">
             <small>Manual Player Select (for Daily Double / Overrides):</small>
             <div id="player-select-buttons"></div>
+        </div>
+
+        <div id="manual-score-controls" style="margin-top: 10px; border-top: 1px solid #555; padding-top: 10px;">
+            <h4>Manual Score Adjustment</h4>
+            <div>Selected Player: <span id="selected-player-name">None</span></div>
+            <div style="margin-top: 8px;">
+                <input type="number" id="score-input" placeholder="Points or New Score" style="width:120px;">
+                <button onclick="addPoints()">Add Points</button>
+                <button onclick="subtractPoints()">Subtract Points</button>
+                <button onclick="setScore()">Set Score</button>
+            </div>
+            <div style="margin-top:6px;"><small>Hint: Use Set Score to assign an absolute value.</small></div>
         </div>
     </div>
 
@@ -83,6 +98,8 @@
 
     function selectClue(catIdx, clueIdx) {
         $('#wager-controls').hide();
+        // disable until server confirms/show_clue
+        $('.admin-cell').prop('disabled', true);
         socket.emit('admin_select_clue', {cat_idx: catIdx, clue_idx: clueIdx});
     }
 
@@ -127,8 +144,7 @@
         socket.emit('admin_update_score', {sid: currentBuzzerSid, points: points});
 
         if (isCorrect) {
-            // Wait for server to close, or close manually?
-            // Server now handles close sequence on correct.
+            // Wait for server to show the answer; host must manually close the clue.
             // But we should visually acknowledge?
             // closeClue(); // Don't call this, let server handle it via 'update_board_state'
         } else {
@@ -150,6 +166,10 @@
         currentClue = clue;
         $('#admin-clue-info').text(`${clue.category} - $${clue.value}: ${clue.text}`);
         $('#admin-answer-info').text(`Answer: ${clue.answer}`);
+        // Indicate buzzers are closed when a clue is shown; host should open them
+        $('#buzzer-status').text('Buzzers: CLOSED').css('color', 'lightcoral');
+        // Disable selecting other clues until this one is closed
+        $('.admin-cell').prop('disabled', true);
     });
 
     socket.on('show_daily_double', (clue) => {
@@ -160,6 +180,8 @@
         $('#wager-input').val('');
         $('#dd-control-info').text('');
         $('#dd-max-wager-info').text('');
+        // Disable selecting other clues until the daily double is closed
+        $('.admin-cell').prop('disabled', true);
     });
 
     socket.on('assign_dd_control', (data) => {
@@ -179,11 +201,56 @@
         $('#admin-buzzer').text("None");
         currentClue = null;
         currentBuzzerSid = null;
+        // Re-enable cells after the clue is closed, but keep already-answered ones disabled
+        $('.admin-cell').prop('disabled', false);
+        $('.admin-cell').filter(function(){ return $(this).css('visibility') === 'hidden';}).prop('disabled', true);
     });
 
     socket.on('buzz_winner', (data) => {
         currentBuzzerSid = data.sid;
         $('#admin-buzzer').text(data.name);
+        $('#buzzer-status').text('Buzzers: CLOSED').css('color', 'lightcoral');
+    });
+
+    socket.on('player_timed_out', (data) => {
+        const who = data.name || data.sid;
+        $('#admin-answer-info').text(`Player timed out: ${who}`);
+        // Keep cells disabled - require admin to manually reopen buzzers
+        $('.admin-cell').prop('disabled', true);
+    });
+
+    socket.on('hide_clue', () => {
+        // Re-enable cells when the clue overlay is hidden, but preserve answered state
+        $('.admin-cell').prop('disabled', false);
+        $('.admin-cell').filter(function(){ return $(this).css('visibility') === 'hidden';}).prop('disabled', true);
+        $('#admin-clue-info').text("None");
+        $('#admin-answer-info').text("");
+        $('#admin-buzzer').text("None");
+        currentClue = null;
+        currentBuzzerSid = null;
+    });
+
+    socket.on('select_rejected', (data) => {
+        alert(data.reason || 'Selection rejected');
+        // Re-enable cells (server refused selection)
+        $('.admin-cell').prop('disabled', false);
+    });
+
+    socket.on('show_answer_text', (data) => {
+        // Show the answer text in admin UI and indicate manual close is required
+        $('#admin-answer-info').text(`Answer: ${data.text} (Awaiting manual close)`);
+    });
+
+    socket.on('buzzers_cleared', () => {
+        $('#buzzer-status').text('Buzzers: OPEN').css('color', 'limegreen');
+    });
+
+    socket.on('buzzers_reopened', (data) => {
+        $('#buzzer-status').text('Buzzers: OPEN').css('color', 'limegreen');
+    });
+
+    socket.on('buzzers_locked', () => {
+        $('#buzzer-status').text('Buzzers: CLOSED').css('color', 'lightcoral');
     });
 
     // Final Jeopardy
@@ -234,6 +301,11 @@
             }
         });
         renderFJList();
+        // Update selected player name if we have one
+        if (currentBuzzerSid) {
+            const sel = players.find(ps => ps.sid === currentBuzzerSid);
+            $('#selected-player-name').text(sel ? sel.name : 'None');
+        }
     }
 
     socket.on('player_list_update', updatePlayers);
@@ -242,6 +314,33 @@
     function setBuzzer(sid, name) {
         currentBuzzerSid = sid;
         $('#admin-buzzer').text(name + " (Manual)");
+        $('#selected-player-name').text(name);
+    }
+
+    function addPoints() {
+        if (!currentBuzzerSid) {
+            alert('Select a player first'); return;
+        }
+        const points = parseInt($('#score-input').val()) || 0;
+        if (points === 0) { alert('Enter points to add'); return; }
+        socket.emit('admin_update_score', {sid: currentBuzzerSid, points: points});
+        $('#score-input').val('');
+    }
+
+    function subtractPoints() {
+        if (!currentBuzzerSid) { alert('Select a player first'); return; }
+        const points = parseInt($('#score-input').val()) || 0;
+        if (points === 0) { alert('Enter points to subtract'); return; }
+        socket.emit('admin_update_score', {sid: currentBuzzerSid, points: -points});
+        $('#score-input').val('');
+    }
+
+    function setScore() {
+        if (!currentBuzzerSid) { alert('Select a player first'); return; }
+        const score = parseInt($('#score-input').val());
+        if (isNaN(score)) { alert('Enter a valid number'); return; }
+        socket.emit('admin_set_score', {sid: currentBuzzerSid, score: score});
+        $('#score-input').val('');
     }
 
     socket.on('admin_fj_status', (data) => {
