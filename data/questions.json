@@ -5,31 +5,31 @@
   "clues": [
     {
       "value": 200,
-      "text": "The Bible confirms their gifts (gold, frankincense, myrrh) and their origin (the East), but completely omits this specific integer found in the hymn 'We Three Kings.'",
+      "text": "The Bible confirms their gifts, but omits this integer found in the hymn 'We Three Kings.'",
       "answer": "What is the number three?",
       "type": "text"
     },
     {
       "value": 400,
-      "text": "While the non-canonical 'Protoevangelium of James' explicitly describes Mary riding this animal, Luke 2 merely states that she 'went' to be registered with Joseph.",
+      "text": "The non-canonical 'Protoevangelium of James' explicitly describes Mary riding this animal, Luke 2 states that she 'went' to be registered with Joseph.",
       "answer": "What is a donkey?",
       "type": "text"
     },
     {
       "value": 600,
-      "text": "Justin Martyr (2nd Century) argued Jesus was born in a cave, but Luke's text is silent on the building type, only confirming the baby was placed in this object.",
+      "text": "Justin Martyr (2nd Century) argued Jesus was born in a cave, but Luke's text only confirms the baby was placed in this object.",
       "answer": "What is a manger (or phatne)?",
       "type": "text"
     },
     {
       "value": 800,
-      "text": "Contrasting with Luke's account of the newborn (*brephos*) in a manger, Matthew 2:11 says the Magi found the 'child' (*paidion*) inside this type of structure.",
+      "text": "Matthew 2:11 says the Magi found the 'child' inside this type of structure.",
       "answer": "What is a house?",
       "type": "text"
     },
     {
       "value": 1000,
-      "text": "The Bible never lists the casualty count for the 'Slaughter of the Innocents,' but Herod determined the victims based on the star's appearance and this upper age limit.",
+      "text": "Herod determined the victims in the Slaughter of the Innocents based on the star's appearance and this upper age limit.",
       "answer": "What is two years old?",
       "type": "text"
     }

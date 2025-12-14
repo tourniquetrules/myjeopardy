@@ -100,6 +100,15 @@
     // Daily Double: the clue is assigned to the control player (no buzzing)
     let ddControlSid = null;
 
+    // Important: the server renders previously-played clues as disabled buttons.
+    // Our runtime logic uses CSS visibility to keep played clues from being re-enabled.
+    // So on initial load, hide any clue buttons that are already disabled.
+    window.addEventListener('DOMContentLoaded', () => {
+        $('.admin-cell')
+            .filter(function () { return !!this.disabled; })
+            .css('visibility', 'hidden');
+    });
+
     function selectClue(catIdx, clueIdx) {
         $('#wager-controls').hide();
         // disable until server confirms/show_clue

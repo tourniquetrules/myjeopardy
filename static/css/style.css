@@ -296,31 +296,29 @@ body {
 /* Board countdown timer (big number) */
 #countdown-timer {
     position: fixed;
-    top: 20vh;
-    left: 50%;
-    /* Large displays: keep it near center but offset so it doesn't cover clue text */
-    --countdown-shift-x: 12vw;
-    transform: translate(-50%, -50%) translateX(var(--countdown-shift-x));
+    bottom: 18px;
+    left: 18px;
+    top: auto;
+    right: auto;
+    transform: none;
     z-index: 200;
     font-weight: 900;
     color: #ff3b3b;
     text-shadow: 2px 2px 0 #000;
-    font-size: clamp(3.5rem, 12vw, 10rem);
+    font-size: clamp(2.25rem, 6vw, 5.5rem);
     width: max-content;
     padding: 0.05em 0.25em;
     border-radius: 18px;
-    background: rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.45);
     pointer-events: none;
 }
 
-/* On smaller laptop screens, keep timer out of the clue text area */
+/* On smaller laptop screens, keep it compact */
 @media (max-width: 1200px), (max-height: 800px) {
     #countdown-timer {
-        top: 14px;
-        right: 18px;
-        left: auto;
-        transform: none;
-        font-size: clamp(2.25rem, 6vw, 4.5rem);
+        bottom: 12px;
+        left: 12px;
+        font-size: clamp(1.6rem, 6vw, 3.25rem);
         background: rgba(0,0,0,0.55);
     }
 }
