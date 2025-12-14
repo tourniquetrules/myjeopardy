@@ -7,15 +7,24 @@
     <div id="status">Waiting...</div>
     <button id="buzz-btn" disabled aria-label="Buzz">BUZZ</button>
     <div id="player-timer" style="display:none; margin-top: 20px; font-size: 2rem; color: gold;"></div>
+    <div id="media-container" style="margin-top: 10px; text-align:center;"></div>
+</div>
+
+<div class="player-container" id="dd-wager-container" style="display:none;">
+    <h3>Daily Double!</h3>
+    <div id="dd-wager-max" style="margin: 10px 0; font-size: 1.6rem;"></div>
+    <label>Enter Wager:</label>
+    <input type="number" id="dd-wager" style="font-size: 2rem; width: 80%;" min="0">
+    <button onclick="submitDDWager()" style="font-size: 2rem; margin-top: 20px;">Submit Wager</button>
 </div>
 
 <div class="player-container" id="fj-wager-container" style="display:none;">
-   <h3>Final Jeopardy</h3>
-   <h4>Category: <span id="fj-category-wager"></span></h4>
-   <h4 id="fj-score-display" style="color: gold;">Your Score: $0</h4>
-   <label>Enter Wager:</label>
-   <input type="number" id="fj-wager" style="font-size: 2rem; width: 80%;">
-   <button onclick="submitFJWager()" style="font-size: 2rem; margin-top: 20px;">Submit Wager</button>
+    <h3>Final Jeopardy</h3>
+    <h4 id="fj-category-wager"></h4>
+    <div id="fj-score-display" style="margin: 10px 0; font-size: 1.6rem;"></div>
+    <label>Enter Wager:</label>
+    <input type="number" id="fj-wager" style="font-size: 2rem; width: 80%;">
+    <button onclick="submitFJWager()" style="font-size: 2rem; margin-top: 20px;">Submit Wager</button>
 </div>
 
 <div class="player-container" id="fj-answer-container" style="display:none;">
@@ -51,6 +60,7 @@
     let mySid = null;
     let isMyTurn = false;
     let playerCountdown = null;
+    let ddAwaitingWager = false;
 
     socket.on('connect', () => {
         socket.emit('join_game', {name: name, player_id: playerId});
@@ -93,6 +103,40 @@
             $('#status').text("Locked out");
         }
     });
+
+    // Daily Double wager prompt (only sent to the DD player)
+    socket.on('dd_wager_prompt', (data) => {
+        ddAwaitingWager = true;
+        $('#regular-play').hide();
+        $('#dd-wager-container').show();
+        const maxWager = (data && typeof data.max_wager === 'number') ? data.max_wager : null;
+        if (maxWager !== null) {
+            $('#dd-wager-max').text(`Maximum Wager: $${maxWager}`);
+            $('#dd-wager').attr('max', maxWager);
+        } else {
+            $('#dd-wager-max').text('Enter your wager');
+            $('#dd-wager').removeAttr('max');
+        }
+        $('#dd-wager').val('');
+    });
+
+    socket.on('dd_wager_rejected', (data) => {
+        const msg = (data && data.message) ? data.message : 'Wager rejected';
+        $('#status').text(msg);
+        ddAwaitingWager = true;
+        $('#regular-play').hide();
+        $('#dd-wager-container').show();
+    });
+
+    function submitDDWager() {
+        const wager = parseInt($('#dd-wager').val()) || 0;
+        socket.emit('player_dd_wager', {wager: wager});
+        // Optimistic UI: wait state until clue is revealed
+        $('#dd-wager-container').hide();
+        $('#regular-play').show();
+        $('#status').text('Wager submitted. Waiting for clue...');
+        ddAwaitingWager = false;
+    }
 
     socket.on('score_update', (players) => {
         const myData = players.find(p => p.name === name);
@@ -161,6 +205,64 @@
     socket.on('start_timer', (data) => {
         if (data.show_countdown && isMyTurn) {
             startPlayerTimer(data.duration);
+        }
+    });
+
+    // Render optional media on player devices (may be image/video/audio or iframe)
+    socket.on('show_clue', (clue) => {
+        $('#media-container').empty();
+        if (clue.media) {
+            const m = clue.media;
+            if (m.type === 'image') {
+                $('#media-container').append(`<img src="${m.src}" alt="${m.caption||''}" style="max-width: 90%; max-height: 30vh;">`);
+            } else if (m.type === 'audio') {
+                const a = $(`<audio controls autoplay src="${m.src}" style="width:90%;"></audio>`);
+                $('#media-container').append(a);
+                a.on('ended', () => { socket.emit('media_ended', {}); });
+            } else if (m.type === 'video') {
+                const v = $(`<video controls playsinline autoplay preload="metadata" src="${m.src}" style="max-width:90%; max-height:30vh;"></video>`);
+                if (m.poster) v.attr('poster', m.poster);
+                $('#media-container').append(v);
+
+                const el = v.get(0);
+                if (el) {
+                    try { el.load(); } catch (e) {}
+                    try {
+                        const p = el.play();
+                        if (p && p.catch) {
+                            p.catch(() => {
+                                try {
+                                    if (!el.muted) {
+                                        el.muted = true;
+                                        const p2 = el.play();
+                                        if (p2 && p2.catch) {
+                                            p2.catch(() => {
+                                                $('#media-container').append(`<div class="media-caption">Autoplay blocked. Tap play to start the video.</div>`);
+                                            });
+                                        }
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked by browser. Playing muted — use the video controls to unmute.</div>`);
+                                    } else {
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked. Tap play to start the video.</div>`);
+                                    }
+                                } catch (e) {
+                                    $('#media-container').append(`<div class="media-caption">Autoplay blocked. Tap play to start the video.</div>`);
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                }
+                v.on('ended', () => { socket.emit('media_ended', {}); });
+                v.on('error', () => {
+                    const el2 = v.get(0);
+                    const code = (el2 && el2.error) ? el2.error.code : 'unknown';
+                    const ns = (el2 && typeof el2.networkState !== 'undefined') ? el2.networkState : 'unknown';
+                    const rs = (el2 && typeof el2.readyState !== 'undefined') ? el2.readyState : 'unknown';
+                    $('#media-container').append(`<div class="media-caption">Video failed to load (code=${code}, network=${ns}, ready=${rs}). Try opening <a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>`);
+                });
+            } else if (m.type === 'iframe') {
+                $('#media-container').append(`<iframe src="${m.src}" style="width:90%; height:30vh;" frameborder="0" allow="autoplay; encrypted-media"></iframe>`);
+            }
+            if (m.caption) $('#media-container').append(`<div class="media-caption">${m.caption}</div>`);
         }
     });
 

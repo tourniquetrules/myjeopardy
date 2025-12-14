@@ -1,36 +1,36 @@
 {
   "round_1": [
     {
-      "category": "Emoji Carols",
+      "category": "Silent \"K\"nights",
       "clues": [
         {
           "value": 200,
-          "text": "🤫 🌃",
-          "answer": "What is Silent Night?",
+          "text": "What the shepherds did when they arrived at the manger to honor the baby.",
+          "answer": "What is Kneel?",
           "type": "text"
         },
         {
           "value": 400,
-          "text": "👀 💑 💋 🎅",
-          "answer": "What is I Saw Mommy Kissing Santa Claus?",
+          "text": "You use this tool to chop firewood for the Yule log (or to spread butter).",
+          "answer": "What is a Knife?",
           "type": "text"
         },
         {
           "value": 600,
-          "text": "🥁 👦",
-          "answer": "What is The Little Drummer Boy?",
+          "text": "This body part might be 'bowed' in prayer.",
+          "answer": "What is the Knee?",
           "type": "text"
         },
         {
           "value": 800,
-          "text": "👵 🚗 🦌",
-          "answer": "What is Grandma Got Run Over by a Reindeer?",
+          "text": "To rap on a door, like Joseph seeking room at the inn.",
+          "answer": "What is Knock?",
           "type": "text"
         },
         {
           "value": 1000,
-          "text": "🚶 ❄️ ⛄ 🏔️",
-          "answer": "What is Walking in a Winter Wonderland?",
+          "text": "A skill or certainty; in the Bible, the Tree of [This] of Good and Evil.",
+          "answer": "What is Knowledge?",
           "type": "text"
         }
       ]

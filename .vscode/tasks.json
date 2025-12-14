@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Install Node.js and npm",
+			"type": "shell",
+			"command": "npm install -g @cloudflare/wrangler",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "setup"
+		},
+		{
+			"label": "Run Jeopardy Server",
+			"type": "shell",
+			"command": "Set-Location \"d:\\VSCode_Projects\\Jeopardy\"; D:/VSCode_Projects/Jeopardy/.venv/Scripts/python.exe app.py",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Run Jeopardy Server",
+			"type": "shell",
+			"command": "Set-Location \"d:\\VSCode_Projects\\Jeopardy\"; D:/VSCode_Projects/Jeopardy/.venv/Scripts/python.exe app.py",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

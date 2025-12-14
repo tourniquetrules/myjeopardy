@@ -38,6 +38,7 @@
         <h3>Current Clue</h3>
         <div id="admin-clue-info">None</div>
         <div id="admin-answer-info" style="font-weight:bold; color:red;"></div>
+        <div id="admin-media-container" style="margin-top:8px;"></div>
 
         <div id="wager-controls" style="display:none; border: 2px solid gold; padding: 10px; margin: 10px 0;">
             <h4>Daily Double Wager</h4>
@@ -87,6 +88,7 @@
     <div id="fj-controls" style="display:none; border: 5px solid white; padding: 20px;">
         <h2>Final Jeopardy</h2>
         <button onclick="revealFJClue()">Reveal Clue (Start 30s Timer)</button>
+        <button onclick="revealFJResults()" style="margin-left: 10px;">Reveal Final Results</button>
         <div id="fj-players-list"></div>
     </div>
 </div>
@@ -95,6 +97,8 @@
     const socket = io();
     let currentClue = null;
     let currentBuzzerSid = null;
+    // Daily Double: the clue is assigned to the control player (no buzzing)
+    let ddControlSid = null;
 
     function selectClue(catIdx, clueIdx) {
         $('#wager-controls').hide();
@@ -135,13 +139,21 @@
 
     function grade(isCorrect) {
         if (!currentClue) return;
-        if (!currentBuzzerSid) {
+        // Daily Double: allow scoring the assigned player even though nobody buzzed.
+        if (!currentBuzzerSid && currentClue.is_daily_double && ddControlSid) {
+            currentBuzzerSid = ddControlSid;
+        }
+
+        // Daily Double: if we still don't have a SID, let the server score the control player.
+        // This avoids the "No one buzzed" situation (DD has no buzzing).
+        const sidToScore = currentBuzzerSid || null;
+        if (!sidToScore && !currentClue.is_daily_double) {
             alert("No player buzzed in!");
             return;
         }
 
         const points = isCorrect ? currentClue.value : -currentClue.value;
-        socket.emit('admin_update_score', {sid: currentBuzzerSid, points: points});
+        socket.emit('admin_update_score', {sid: sidToScore, points: points});
 
         if (isCorrect) {
             // Wait for server to show the answer; host must manually close the clue.
@@ -166,6 +178,44 @@
         currentClue = clue;
         $('#admin-clue-info').text(`${clue.category} - $${clue.value}: ${clue.text}`);
         $('#admin-answer-info').text(`Answer: ${clue.answer}`);
+
+        // Daily Double reveal happens after wager via hide_clue -> show_clue.
+        // Restore the assigned DD player so the host can grade.
+        if (clue.is_daily_double && ddControlSid) {
+            currentBuzzerSid = ddControlSid;
+        }
+        // Render optional media preview
+        $('#admin-media-container').empty();
+        if (clue.media) {
+            const m = clue.media;
+            if (m.type === 'image') {
+                $('#admin-media-container').append(`<img src="${m.src}" alt="${m.caption||''}" style="max-height: 20vh; max-width: 50%;">`);
+            } else if (m.type === 'video') {
+                const v = $(`<video controls playsinline preload="metadata" src="${m.src}" style="max-height: 20vh; max-width: 50%;"></video>`);
+                if (m.poster) v.attr('poster', m.poster);
+                $('#admin-media-container').append(v);
+                const el = v.get(0);
+                if (el) {
+                    try { el.load(); } catch (e) {}
+                }
+                v.on('ended', () => { socket.emit('media_ended', {}); });
+                v.on('error', () => {
+                    const el2 = v.get(0);
+                    const code = (el2 && el2.error) ? el2.error.code : 'unknown';
+                    const ns = (el2 && typeof el2.networkState !== 'undefined') ? el2.networkState : 'unknown';
+                    const rs = (el2 && typeof el2.readyState !== 'undefined') ? el2.readyState : 'unknown';
+                    $('#admin-media-container').append(`<div class="media-caption">Video failed to load (code=${code}, network=${ns}, ready=${rs}). Try opening <a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>`);
+                });
+            } else if (m.type === 'audio') {
+                const a = $(`<audio controls src="${m.src}"></audio>`);
+                $('#admin-media-container').append(a);
+                a.on('ended', () => { socket.emit('media_ended', {}); });
+            } else if (m.type === 'iframe') {
+                $('#admin-media-container').append(`<iframe src="${m.src}" style="width: 60%; height: 18vh;" frameborder="0" allow="autoplay; encrypted-media"></iframe>`);
+            }
+            if (m.caption) $('#admin-media-container').append(`<div class="media-caption">${m.caption}</div>`);
+        }
+
         // Indicate buzzers are closed when a clue is shown; host should open them
         $('#buzzer-status').text('Buzzers: CLOSED').css('color', 'lightcoral');
         // Disable selecting other clues until this one is closed
@@ -174,23 +224,65 @@
 
     socket.on('show_daily_double', (clue) => {
         currentClue = clue;
+        // Reset DD control until server tells us who it is
+        ddControlSid = null;
         $('#admin-clue-info').text(`${clue.category} - DAILY DOUBLE`);
         $('#admin-answer-info').text(`Answer: ${clue.answer}`);
         $('#wager-controls').show();
         $('#wager-input').val('');
         $('#dd-control-info').text('');
         $('#dd-max-wager-info').text('');
+        // Render media if present
+        $('#admin-media-container').empty();
+        if (clue.media) {
+            const m = clue.media;
+            if (m.type === 'image') {
+                $('#admin-media-container').append(`<img src="${m.src}" alt="${m.caption||''}" style="max-height: 20vh; max-width: 50%;">`);
+            } else if (m.type === 'video') {
+                const v = $(`<video controls playsinline preload="metadata" src="${m.src}" style="max-height: 20vh; max-width: 50%;"></video>`);
+                if (m.poster) v.attr('poster', m.poster);
+                $('#admin-media-container').append(v);
+                const el = v.get(0);
+                if (el) {
+                    try { el.load(); } catch (e) {}
+                }
+                v.on('ended', () => { socket.emit('media_ended', {}); });
+                v.on('error', () => {
+                    const el2 = v.get(0);
+                    const code = (el2 && el2.error) ? el2.error.code : 'unknown';
+                    const ns = (el2 && typeof el2.networkState !== 'undefined') ? el2.networkState : 'unknown';
+                    const rs = (el2 && typeof el2.readyState !== 'undefined') ? el2.readyState : 'unknown';
+                    $('#admin-media-container').append(`<div class="media-caption">Video failed to load (code=${code}, network=${ns}, ready=${rs}). Try opening <a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>`);
+                });
+            } else if (m.type === 'audio') {
+                const a = $(`<audio controls src="${m.src}"></audio>`);
+                $('#admin-media-container').append(a);
+                a.on('ended', () => { socket.emit('media_ended', {}); });
+            } else if (m.type === 'iframe') {
+                $('#admin-media-container').append(`<iframe src="${m.src}" style="width: 60%; height: 18vh;" frameborder="0" allow="autoplay; encrypted-media"></iframe>`);
+            }
+            if (m.caption) $('#admin-media-container').append(`<div class="media-caption">${m.caption}</div>`);
+        }
         // Disable selecting other clues until the daily double is closed
         $('.admin-cell').prop('disabled', true);
     });
 
     socket.on('assign_dd_control', (data) => {
         // Automatically select this player
+        ddControlSid = data.sid;
         setBuzzer(data.sid, data.name);
         $('#dd-control-info').text(`Player: ${data.name} | Score: $${data.score}`);
         $('#dd-max-wager-info').text(`Maximum Wager: $${data.max_wager}`);
         $('#wager-input').attr('max', data.max_wager);
         window.ddMaxWager = data.max_wager;
+    });
+
+    socket.on('dd_wager_set', (data) => {
+        // Player submitted a DD wager; hide manual wager controls on admin
+        $('#wager-controls').hide();
+        if (data && data.name != null && data.wager != null) {
+            $('#dd-control-info').text(`Player: ${data.name} | Wager: $${data.wager}`);
+        }
     });
 
     socket.on('update_board_state', (data) => {
@@ -201,6 +293,7 @@
         $('#admin-buzzer').text("None");
         currentClue = null;
         currentBuzzerSid = null;
+        ddControlSid = null;
         // Re-enable cells after the clue is closed, but keep already-answered ones disabled
         $('.admin-cell').prop('disabled', false);
         $('.admin-cell').filter(function(){ return $(this).css('visibility') === 'hidden';}).prop('disabled', true);
@@ -228,12 +321,17 @@
         $('#admin-buzzer').text("None");
         currentClue = null;
         currentBuzzerSid = null;
+        // Keep ddControlSid so scoring still works after DD wager reveal
     });
 
     socket.on('select_rejected', (data) => {
         alert(data.reason || 'Selection rejected');
         // Re-enable cells (server refused selection)
         $('.admin-cell').prop('disabled', false);
+    });
+
+    socket.on('admin_error', (data) => {
+        alert((data && data.message) ? data.message : 'Admin error');
     });
 
     socket.on('show_answer_text', (data) => {
@@ -256,6 +354,7 @@
     // Final Jeopardy
     function startFJ() {
         if (confirm("Start Final Jeopardy? This cannot be undone.")) {
+            fjPlayers = {};
             socket.emit('admin_start_fj');
             $('#btn-start-fj').hide();
             $('#admin-grid').hide();
@@ -266,6 +365,10 @@
 
     function revealFJClue() {
         socket.emit('admin_reveal_fj_clue');
+    }
+
+    function revealFJResults() {
+        socket.emit('admin_show_fj_results');
     }
 
     function startRound2() {
@@ -282,7 +385,7 @@
         $('#control-indicator').text("Control: " + data.name);
     });
 
-    let fjPlayers = {}; // sid -> {name, wagered, answered, answerText, score, graded}
+    let fjPlayers = {}; // pid -> {pid, sid, name, wagered, answered, answerText, score, graded}
 
     function updatePlayers(players) {
         // Render Manual Select
@@ -292,12 +395,14 @@
              container.append(`<button onclick="setBuzzer('${p.sid}', '${p.name}')" style="margin:2px;">${p.name}</button>`);
         });
 
-        // Sync fjPlayers
+        // Sync fjPlayers (keyed by stable pid)
         players.forEach(p => {
-            if (!fjPlayers[p.sid]) {
-                fjPlayers[p.sid] = {name: p.name, wagered: false, answered: false, answerText: "", score: p.score, graded: false};
+            if (!fjPlayers[p.pid]) {
+                fjPlayers[p.pid] = {pid: p.pid, sid: p.sid, name: p.name, wagered: false, answered: false, answerText: "", score: p.score, graded: false};
             } else {
-                fjPlayers[p.sid].score = p.score;
+                fjPlayers[p.pid].sid = p.sid;
+                fjPlayers[p.pid].name = p.name;
+                fjPlayers[p.pid].score = p.score;
             }
         });
         renderFJList();
@@ -344,20 +449,37 @@
     }
 
     socket.on('admin_fj_status', (data) => {
-        // data: {sid, has_wager, has_answer, answer}
-        if (fjPlayers[data.sid]) {
-            fjPlayers[data.sid].wagered = data.has_wager;
-            fjPlayers[data.sid].answered = data.has_answer;
-            if (data.answer) fjPlayers[data.sid].answerText = data.answer;
-            renderFJList();
+        // data: {pid, sid, has_wager, has_answer, answer}
+        if (!data || !data.pid) return;
+
+        // If we haven't synced player_list_update yet (or fjPlayers was reset), create the entry.
+        if (!fjPlayers[data.pid]) {
+            fjPlayers[data.pid] = {
+                pid: data.pid,
+                sid: data.sid || null,
+                name: data.name || data.pid,
+                wagered: false,
+                answered: false,
+                answerText: "",
+                score: 0,
+                graded: false
+            };
+        } else {
+            if (data.sid) fjPlayers[data.pid].sid = data.sid;
+            if (data.name) fjPlayers[data.pid].name = data.name;
         }
+
+        fjPlayers[data.pid].wagered = !!data.has_wager;
+        fjPlayers[data.pid].answered = !!data.has_answer;
+        if (data.answer !== undefined && data.answer !== null) fjPlayers[data.pid].answerText = data.answer;
+        renderFJList();
     });
 
     function renderFJList() {
         const div = $('#fj-players-list');
         div.empty();
-        Object.keys(fjPlayers).forEach(sid => {
-            const p = fjPlayers[sid];
+        Object.keys(fjPlayers).forEach(pid => {
+            const p = fjPlayers[pid];
             let html = `<div style="border: 1px solid white; margin: 5px; padding: 5px;">
                 <strong>${p.name}</strong> ($${p.score}) -
                 Wagered: ${p.wagered ? 'YES' : 'NO'} -
@@ -367,8 +489,8 @@
                 html += `<br>Answer: <span style="color: yellow;">${p.answerText}</span>`;
                 if (!p.graded) {
                     html += `
-                    <button onclick="gradeFJ('${sid}', true)">Correct</button>
-                    <button onclick="gradeFJ('${sid}', false)">Incorrect</button>`;
+                    <button onclick="gradeFJ('${p.pid}', true)">Correct</button>
+                    <button onclick="gradeFJ('${p.pid}', false)">Incorrect</button>`;
                 } else {
                     html += ` <strong>(Graded)</strong>`;
                 }
@@ -378,12 +500,12 @@
         });
     }
 
-    function gradeFJ(sid, correct) {
-        if(fjPlayers[sid]) {
-            fjPlayers[sid].graded = true;
+    function gradeFJ(pid, correct) {
+        if(fjPlayers[pid]) {
+            fjPlayers[pid].graded = true;
             renderFJList();
         }
-        socket.emit('admin_grade_fj', {sid: sid, correct: correct});
+        socket.emit('admin_grade_fj', {pid: pid, correct: correct});
     }
 
 </script>

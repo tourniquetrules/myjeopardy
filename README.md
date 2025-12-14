@@ -21,6 +21,21 @@ A web-based Jeopardy game clone built with Python (Flask) and WebSockets. Design
 
 ## Running the Game
 
+### PowerShell (Windows) quick start
+
+- First run (create venv + install deps): `powershell -ExecutionPolicy Bypass -File .\Start-Jeopardy.ps1 -Install -OpenBrowser`
+- Normal run: `powershell -ExecutionPolicy Bypass -File .\Start-Jeopardy.ps1 -OpenBrowser`
+- Custom port: `powershell -ExecutionPolicy Bypass -File .\Start-Jeopardy.ps1 -Port 5050 -OpenBrowser`
+
+If you also use a Cloudflare tunnel, you can use the unified script:
+- Start tunnel + app: `powershell -ExecutionPolicy Bypass -File .\\tunnel.ps1 start -StartApp -Install -OpenBrowser -PublicJoinUrl https://jeopardy.haydd.com`
+- Start app only: `powershell -ExecutionPolicy Bypass -File .\\tunnel.ps1 start -StartApp -StartTunnel:$false -OpenBrowser`
+
+The Board screen shows a QR code on the initial “Enable Audio” overlay. Set `-PublicJoinUrl` (or env var `PUBLIC_JOIN_URL`) so the QR code points at your public join page.
+
+If PowerShell blocks venv activation, run:
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
+
 1. Start the server:
    ```bash
    python app.py
@@ -53,11 +68,25 @@ Players should connect to the host's Wi-Fi network. Find the host's local IP add
 Edit `data/questions.json` to change categories, clues, and answers.
 - `round_1`: The main Jeopardy round (6 categories, 5 clues each).
 - `final_jeopardy`: The single Final Jeopardy question.
-- **Media:** Add `media_url` to a clue object to display images or play audio/video. (e.g., `"media_url": "static/assets/my_image.jpg"`).
+- **Media:** Add a `media` object to a clue to display images or play audio/video. Example:
+
+```json
+"media": {
+  "type": "image|video|audio|iframe",
+  "src": "https://example.com/your_image.jpg",
+  "poster": "https://example.com/poster.jpg",  // optional for videos
+  "caption": "Optional caption text",
+  "lock_buzzers": true,   // host remains in control until media ends (optional)
+  "auto_unlock": true     // if true and lock_buzzers, media ending will auto-reopen buzzers
+}
+```
+
+- Media sources can be local (e.g., `static/assets/images/name.jpg`) or external HTTPS URLs. For large media, prefer hosting externally (CDN) for better performance and to keep the repo small.
 
 ## Troubleshooting
 
 - **Connection Issues:** Ensure all devices are on the same network. Check your firewall settings if players cannot connect.
+- **Socket.IO Client:** The game uses a locally bundled Socket.IO client at `static/js/socket.io.min.js` (no internet required). If pages look "frozen", confirm that file exists and loads.
 - **Audio:** Ensure the browser tab for the Board has permission to autoplay audio/video.
 
 ## Cloudflare Tunnel (Optional)
@@ -96,13 +125,19 @@ If you want this to run automatically on startup, consider installing `cloudflar
 
 A helper PowerShell script `tunnel.ps1` is included in the project root to control the Cloudflare tunnel and the local app (optional). It supports `start`, `stop`, and `status` actions and saves PIDs to `%USERPROFILE%\.cloudflared`.
 
+It can also bootstrap the app on Windows (create `.venv`, optionally install dependencies, set the port, and optionally open the Admin/Board pages).
+
 - Start the tunnel:
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start
    ```
 - Start the tunnel and the app (in one command):
    ```powershell
-   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start -StartApp
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start -StartApp -Install -OpenBrowser
+   ```
+- Start only the app (no tunnel):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\tunnel.ps1 start -StartApp -StartTunnel:$false -OpenBrowser
    ```
 - Stop the tunnel (and app if started by the script):
    ```powershell

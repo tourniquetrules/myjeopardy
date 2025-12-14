@@ -1,0 +1,23 @@
+# Cloudflare Tunnel configuration for Jeopardy
+# Replace `credentials-file` path with the path created when you run
+# `cloudflared tunnel create jeopardy-tunnel` on your machine.
+
+# Name of the tunnel (created with `cloudflared tunnel create`)
+tunnel: "jeopardy-tunnel"
+
+# Path to the credentials file that Cloudflare created for this tunnel.
+# On Windows it is usually under %USERPROFILE%\.cloudflared\
+credentials-file: C:\Users\toddh\.cloudflared\9ef46eeb-d696-49a6-aec8-a77188822f13.json
+
+ingress:
+  - hostname: jeopardy.haydd.com
+    service: http://127.0.0.1:5000
+
+  # Catch-all rule (return 404 for anything else)
+  - service: http_status:404
+
+# Optional settings you may want to add:
+# originRequest:
+#   connectTimeout: 30s
+#   readTimeout: 180s
+#   noTLSVerify: false

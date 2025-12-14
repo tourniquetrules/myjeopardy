@@ -3,4 +3,13 @@ __pycache__/
 *.pyo
 env/
 venv/
+.venv/
 .DS_Store
+
+# Logs
+*.log
+server*.log
+server.*.log
+
+# Local-only artifacts accidentally created in repo
+%USERPROFILE%/

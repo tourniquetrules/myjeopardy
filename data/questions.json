@@ -1,75 +1,75 @@
 {
   "round_1": [
     {
-      "category": "The Bible Does Not Say",
-      "clues": [
-        {
-          "value": 200,
-          "text": "While tradition and songs say there were three of them, the Bible never specifies the number of these visitors.",
-          "answer": "Who are the Wise Men (Magi)?",
-          "type": "text"
-        },
-        {
-          "value": 400,
-          "text": "Despite almost every painting depicting one, the Gospels never mention Mary riding this animal to Bethlehem.",
-          "answer": "What is a donkey?",
-          "type": "text"
-        },
-        {
-          "value": 600,
-          "text": "The Bible never says Jesus was born in a stable or a cave, but specifically mentions he was placed here because there was no room in the guest room.",
-          "answer": "What is a manger (or feed trough)?",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "While 'Hark the Herald Angels Sing' suggests otherwise, the Bible does not record the angels doing this specific action; it says they 'said' or 'praised.'",
-          "answer": "What is singing?",
-          "type": "text"
-        },
-        {
-          "value": 1000,
-          "text": "Often depicted as royalty, the Bible never refers to the Magi as these.",
-          "answer": "What are Kings?",
-          "type": "text"
-        }
-      ]
+  "category": "The Bible Does Not Say",
+  "clues": [
+    {
+      "value": 200,
+      "text": "The Bible confirms their gifts (gold, frankincense, myrrh) and their origin (the East), but completely omits this specific integer found in the hymn 'We Three Kings.'",
+      "answer": "What is the number three?",
+      "type": "text"
     },
     {
-      "category": "Prophet Margins",
-      "clues": [
-        {
-          "value": 200,
-          "text": "This 'major' prophet wrote, 'For unto us a Child is born, unto us a Son is given.'",
-          "answer": "Who is Isaiah?",
-          "type": "text"
-        },
-        {
-          "value": 400,
-          "text": "The book of Micah predicted the Messiah would be born in this specific 'little' town.",
-          "answer": "What is Bethlehem?",
-          "type": "text"
-        },
-        {
-          "value": 600,
-          "text": "In Matthew, the Holy Family flees to this country to fulfill the prophecy 'Out of [Blank] I called my son.'",
-          "answer": "What is Egypt?",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "Jeremiah 31 mentions a voice weeping in Ramah, foreshadowing this tragic event ordered by Herod.",
-          "answer": "What is the Massacre of the Innocents (or the killing of the baby boys)?",
-          "type": "text"
-        },
-        {
-          "value": 1000,
-          "text": "The lineage of Jesus is often traced back to this son of Jacob, as the 'Lion of the tribe of [Blank].'",
-          "answer": "Who is Judah?",
-          "type": "text"
-        }
-      ]
+      "value": 400,
+      "text": "While the non-canonical 'Protoevangelium of James' explicitly describes Mary riding this animal, Luke 2 merely states that she 'went' to be registered with Joseph.",
+      "answer": "What is a donkey?",
+      "type": "text"
     },
+    {
+      "value": 600,
+      "text": "Justin Martyr (2nd Century) argued Jesus was born in a cave, but Luke's text is silent on the building type, only confirming the baby was placed in this object.",
+      "answer": "What is a manger (or phatne)?",
+      "type": "text"
+    },
+    {
+      "value": 800,
+      "text": "Contrasting with Luke's account of the newborn (*brephos*) in a manger, Matthew 2:11 says the Magi found the 'child' (*paidion*) inside this type of structure.",
+      "answer": "What is a house?",
+      "type": "text"
+    },
+    {
+      "value": 1000,
+      "text": "The Bible never lists the casualty count for the 'Slaughter of the Innocents,' but Herod determined the victims based on the star's appearance and this upper age limit.",
+      "answer": "What is two years old?",
+      "type": "text"
+    }
+  ]
+},
+       {
+  "category": "Prophet Margins",
+  "clues": [
+    {
+      "value": 200,
+      "text": "Often called the 'Fifth Evangelist' because he is quoted so frequently in the New Testament, his scroll contains the 'Suffering Servant' songs and the promise of a 'Wonderful Counselor.'",
+      "answer": "Who is Isaiah?",
+      "type": "text"
+    },
+    {
+      "value": 400,
+      "text": "Micah 5:2 distinguishes the Messiah's birthplace by adding the ancient clan name 'Ephrathah,' separating it from a town of the same name in the territory of Zebulun.",
+      "answer": "What is Bethlehem?",
+      "type": "text"
+    },
+    {
+      "value": 600,
+      "text": "Matthew 2 cites Hosea 11:1, 'Out of [this place] I called my son,' purposefully drawing a parallel between the Messiah's childhood safety and the nation of Israel's Exodus.",
+      "answer": "What is Egypt?",
+      "type": "text"
+    },
+    {
+      "value": 800,
+      "text": "While he wasn't a prophet by trade, his father Jacob prophesied over him in Genesis 49, promising that 'the scepter shall not depart' from his line until the ruler comes.",
+      "answer": "Who is Judah?",
+      "type": "text"
+    },
+    {
+      "value": 1000,
+      "text": "Numbers 24:17 predicts 'a star shall come out of Jacob,' a prophecy delivered not by an Israelite, but by this diviner from Pethor who is famous for having an argument with his donkey.",
+      "answer": "Who is Balaam?",
+      "type": "text"
+    }
+  ]
+},
     {
       "category": "Geneal-o-Gees",
       "clues": [
@@ -85,149 +85,179 @@
           "answer": "Who is David?",
           "type": "text"
         },
-        {
+         {
           "value": 600,
-          "text": "According to Luke 3, Jesus was 'supposedly' the son of Joseph, who was the son of this man (Joseph's father).",
-          "answer": "Who is Heli? (Note: Matthew lists Jacob; this is a great trivia nuance)",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "This ruthlessly jealous King was the father of the Herod who later put Jesus on trial.",
-          "answer": "Who is Herod the Great?",
-          "type": "text"
-        },
-        {
-          "value": 1000,
           "text": "This woman is one of the few mentioned in Matthew's genealogy; she was not an Israelite but a Moabite.",
           "answer": "Who is Ruth?",
           "type": "text"
-        }
+        },
+        {
+      "value": 800,
+      "text": "This Idumean ruler is historically known as 'The Builder' for expanding the Second Temple, but biblically known for his paranoid attempt to kill the 'King of the Jews.'",
+      "answer": "Who is Herod the Great?",
+      "type": "text"
+    },
+        {
+          "value": 1000,
+          "text": "According to Luke 3, Jesus was 'supposedly' the son of Joseph, who was the son of this man (Joseph's father).",
+          "answer": "Who is Heli? (Note: Matthew lists Jacob; this is a great trivia nuance)",
+          "type": "text"
+        }       
       ]
     },
     {
-      "category": "Frankincense & \"Sense\"",
-      "clues": [
-        {
-          "value": 200,
-          "text": "Of the three gifts, this one is a hardened gum-like resin used in incense and perfume.",
-          "answer": "What is Frankincense?",
-          "type": "text"
-        },
-        {
-          "value": 400,
-          "text": "This gift, a dried sap used in embalming, symbolically pointed toward Jesus' future death.",
-          "answer": "What is Myrrh?",
-          "type": "text"
-        },
-        {
-          "value": 600,
-          "text": "In the Old Testament, this gift was often required for overlaying the Ark of the Covenant and Temple furniture.",
-          "answer": "What is Gold?",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "According to Isaiah 60:6, camels from Midian and Ephah would bring gold and frankincense, but notably, this gift is omitted from the prophecy of the future Kingdom.",
-          "answer": "What is Myrrh? (Because Myrrh symbolizes death/suffering, which won't exist in the future Kingdom)",
-          "type": "text"
-        },
-        {
-          "value": 1000,
-          "text": "In the ancient world, Frankincense was harvested primarily from trees in this region (modern-day Oman/Yemen).",
-          "answer": "What is Arabia (or the Arabian Peninsula)?",
-          "type": "text"
-        }
-      ]
+  "category": "Christmas Potpourri",
+  "clues": [
+    {
+      "value": 200,
+      "text": "Luke 2 dates the birth of Jesus to the reign of this Roman Emperor, the grand-nephew of Julius Caesar.",
+      "answer": "Who is Augustus (Caesar Augustus)?",
+      "type": "text"
     },
     {
-      "category": "Silent \"K\"nights",
-      "clues": [
-        {
-          "value": 200,
-          "text": "What the shepherds did when they arrived at the manger to honor the baby.",
-          "answer": "What is Kneel?",
-          "type": "text"
-        },
-        {
-          "value": 400,
-          "text": "You use this tool to chop firewood for the Yule log (or to spread butter).",
-          "answer": "What is a Knife?",
-          "type": "text"
-        },
-        {
-          "value": 600,
-          "text": "This body part might be 'bowed' in prayer.",
-          "answer": "What is the Knee?",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "To rap on a door, like Joseph seeking room at the inn.",
-          "answer": "What is Knock?",
-          "type": "text"
-        },
-        {
-          "value": 1000,
-          "text": "A skill or certainty; in the Bible, the Tree of [This] of Good and Evil.",
-          "answer": "What is Knowledge?",
-          "type": "text"
-        }
-      ]
+      "value": 400,
+      "text": "While Simeon is famous for his prayer, Luke 2 also mentions this elderly prophetess from the tribe of Asher who never left the temple.",
+      "answer": "Who is Anna?",
+      "type": "text"
     },
     {
-      "category": "That's Not in the Script",
-      "clues": [
-        {
-          "value": 200,
-          "text": "We often depict the Magi arriving the night of the birth, but Matthew 2:11 says they entered this structure, not a stable.",
-          "answer": "What is a House?",
-          "type": "text"
-        },
-        {
-          "value": 400,
-          "text": "While Christmas cards show a bright star over the manger, the Bible only mentions the star appearing to these people.",
-          "answer": "Who are the Magi (Wise Men)? (The shepherds were guided by an angel, not the star)",
-          "type": "text"
-        },
-        {
-          "value": 600,
-          "text": "Herod ordered the death of boys in Bethlehem under this age, suggesting Jesus may have been a toddler when the Wise Men arrived.",
-          "answer": "What is Two Years Old?",
-          "type": "text"
-        },
-        {
-          "value": 800,
-          "text": "The Bible never actually says Jesus was born on December 25th; this date was likely chosen to coincide with (or replace) this Roman winter solstice festival.",
-          "answer": "What is Saturnalia (or Sol Invictus)?",
-          "type": "text"
-        },
-        {
-          "value": 1000,
-          "text": "Tradition says the forbidden fruit in Eden was an apple (often associated with Christmas ornaments), but the Hebrew text simply calls it this.",
-          "answer": "What is Fruit? (Or peri)",
-          "type": "text"
-        }
-      ]
+      "value": 600,
+      "text": "Luke 2 mentions that this man was the Governor of Syria when the first census took place.",
+      "answer": "Who is Quirinius (or Cyrenius)?",
+      "type": "text"
+    },
+    {
+      "value": 800,
+      "text": "Mary and Joseph brought a pair of these birds for their purification sacrifice, the option allowed by Leviticus for those who could not afford a lamb.",
+      "answer": "What are Doves (or Pigeons)?",
+      "type": "text"
+    },
+    {
+      "value": 1000,
+      "text": "The name 'Jesus' is the Greek form of this Hebrew name, which means 'The Lord Saves' and belonged to the successor of Moses. Also a book in the Old Testament.",
+      "answer": "Who is Joshua?",
+      "type": "text"
     }
+  ]
+},
+    {
+      "category": "Emoji Carols",
+      "clues": [
+        {
+          "value": 200,
+          "text": "🤫 🌃",
+          "answer": "What is Silent Night?",
+          "type": "text"
+        },
+        {
+          "value": 400,
+          "text": "👀 💑 💋 🎅",
+          "answer": "What is I Saw Mommy Kissing Santa Claus?",
+          "type": "text"
+        },
+        {
+          "value": 600,
+          "text": "🥁 👦",
+          "answer": "What is The Little Drummer Boy?",
+          "type": "text"
+        },
+        {
+          "value": 800,
+          "text": "👵 🚗 🦌",
+          "answer": "What is Grandma Got Run Over by a Reindeer?",
+          "type": "text"
+        },
+        {
+          "value": 1000,
+          "text": "🚶 ❄️ ⛄ 🏔️",
+          "answer": "What is Walking in a Winter Wonderland?",
+          "type": "text"
+        }
+      ]
+    },
+    {
+  "category": "Christmas Movies",
+  "clues": [
+    {
+      "value": 200,
+      "text": "In 'Home Alone,' Kevin is left behind by his family; in Luke 2, 12-year-old Jesus was left behind in this city for three days.",
+      "answer": "What is Jerusalem?",
+      "type": "text"
+    },
+    {
+      "value": 400,
+      "text": "In 'The Grinch,' the title character's heart grows three sizes; in Ezekiel 36, God promises to remove a 'heart of stone' and replace it with a heart of this.",
+      "answer": "What is Flesh?",
+      "type": "text"
+    },
+    {
+      "value": 600,
+      "text": "In 'The Polar Express,' the conductor punches 'Believe' on a ticket; Jesus told this disciple, 'Blessed are those who have not seen and yet have believed.'",
+      "answer": "Who is Thomas?",
+      "type": "text"
+    },
+    {
+      "value": 800,
+      "text": "In 'It's a Wonderful Life,' George Bailey wishes he had never been born; in the Old Testament, this suffering man cursed the day of his birth in chapter 3.",
+      "answer": "Who is Job?",
+      "type": "text"
+    },
+    {
+      "value": 1000,
+      "text": "In 'Die Hard' (yes, it's a Christmas movie), the action takes place in a high-rise tower; in Genesis 11, men tried to build a tower to the heavens in this place.",
+      "answer": "What is Babel?",
+      "type": "text"
+    }
+  ]
+}
   ],
   "round_2": [
     {
-      "category": "Prophets Foretold",
-      "clues": [
-        {"value": 400, "text": "This prophet predicted the Messiah would be born in Bethlehem.", "answer": "Micah", "type": "text"},
-        {"value": 800, "text": "He prophesied: 'For unto us a Child is born, Unto us a Son is given'.", "answer": "Isaiah", "type": "text"},
-        {"value": 1200, "text": "This major prophet is often called the 'Weeping Prophet'.", "answer": "Jeremiah", "type": "text"},
-        {"value": 1600, "text": "He foresaw the suffering servant in chapter 53 of his book.", "answer": "Isaiah", "type": "text"},
-        {"value": 2000, "text": "This prophet married Gomer to illustrate God's love for unfaithful Israel.", "answer": "Hosea", "type": "text"}
-      ]
+  "category": "Medical Mysteries",
+  "clues": [
+    {
+      "value": 400,
+      "text": "Jesus rebuked this specific symptom in Peter's mother-in-law, and it left her immediately, allowing her to get up and wait on them.",
+      "answer": "What is a Fever?",
+      "type": "text"
     },
+    {
+      "value": 800,
+      "text": "While Matthew and Mark simply say this man had a 'withered hand,' Luke (the physician) specifies that it was this specific hand, affecting his ability to work.",
+      "answer": "What is the Right Hand?",
+      "type": "text"
+    },
+    {
+      "value": 1200,
+      "text": "In Luke 14, Jesus heals a man suffering from 'dropsy,' an archaic medical term for this condition characterized by excess fluid in the tissues.",
+      "answer": "What is Edema (or Swelling)?",
+      "type": "text"
+    },
+    {
+      "value": 1600,
+      "text": "This condition, healed by Jesus in ten men at once, involves nerve damage and skin lesions; in the Bible, the term often covered various infectious skin diseases.",
+      "answer": "What is Leprosy (or Hansen's Disease)?",
+      "type": "text"
+    },
+    {
+      "value": 2000,
+      "text": "Recorded only by Luke, this rare phenomenon called 'hematidrosis' occurred in Gethsemane when Jesus was under extreme psychological stress.",
+      "answer": "What is Sweating Blood?",
+      "type": "text"
+    }
+  ]
+},
     {
       "category": "Oh \"Baby\"",
       "clues": [
         {"value": 400, "text": "This prophet leaped in his mother's womb when Mary (pregnant with Jesus) walked into the room.", "answer": "Who is John the Baptist?", "type": "text"},
         {"value": 800, "text": "A chocolate bar named 'Baby [Blank],' or the Moabitess who was the great-grandmother of David.", "answer": "Who is Ruth?", "type": "text"},
-        {"value": 1200, "text": "'Ice Ice Baby' is a song by Vanilla Ice; this is the 'Ice' that covers the top of Mount Hermon year-round.", "answer": "What is Snow?", "type": "text"},
+        {
+      "value": 1000,
+      "text": "Take the last three letters off this ancient city (where Daniel was held captive) and you are left with just 'Baby.'",
+      "answer": "What is Babylon?",
+      "type": "text"
+    },
         {"value": 1600, "text": "Moses was a baby hidden in a basket made of papyrus and this sticky substance (also used on Noah's Ark).", "answer": "What is Pitch (or Tar/Bitumen)?", "type": "text"},
         {"value": 2000, "text": "In 1 Kings 3, this wise King suggested cutting a baby in half to determine the real mother.", "answer": "Who is Solomon?", "type": "text"}
       ]
@@ -243,39 +273,89 @@
       ]
     },
     {
-      "category": "Sleigh My Name",
-      "clues": [
-        {"value": 400, "text": "This actor, whose first name is a festive prickly plant, played Michael Scott's girlfriend in The Office and the voice of Elastigirl.", "answer": "Who is Holly Hunter?", "type": "text"},
-        {"value": 800, "text": "He's the 'Saint' of an actor who starred in Leaving Las Vegas and National Treasure.", "answer": "Who is Nicolas (Nick) Cage?", "type": "text"},
-        {"value": 1200, "text": "This 'song-like' lady was the first female writer for Saturday Night Live and starred in The Burnett Show.", "answer": "Who is Carol Burnett?", "type": "text"},
-        {"value": 1600, "text": "Her first name is the night before Christmas; she is the rapper who starred in the TV show Queens and had a hit with 'Let Me Blow Ya Mind.'", "answer": "Who is Eve?", "type": "text"},
-        {"value": 2000, "text": "This actress shares a name with the frankincense-bearing visitors; she famously starred in Donnie Darko and The Dark Knight.", "answer": "Who is Maggie Gyllenhaal? (Magi)", "type": "text"}
-      ]
+  "category": "New Testament Pen Pals",
+  "clues": [
+    {
+      "value": 400,
+      "text": "He wrote approximately half of the books in the New Testament, including Romans, Galatians, and Philemon.",
+      "answer": "Who is Paul?",
+      "type": "text"
     },
+    {
+      "value": 800,
+      "text": "Mark and Luke refer to this author by the name 'Levi, son of Alphaeus,' but in the first book of the New Testament, he is listed by his Greek name.",
+      "answer": "Who is Matthew?",
+      "type": "text"
+    },
+    {
+      "value": 1200,
+      "text": "He is the only Gentile author in the New Testament, and he addressed both of his major volumes to a 'Most Excellent' high official named Theophilus.",
+      "answer": "Who is Luke?",
+      "type": "text"
+    },
+    {
+      "value": 1600,
+      "text": "In his second and third epistles, he identifies himself simply as 'The Elder'; in his Gospel, he uses the title 'the disciple whom Jesus loved.'",
+      "answer": "Who is John?",
+      "type": "text"
+    },
+    {
+      "value": 2000,
+      "text": "The early church father Origen famously said 'only God knows' who wrote this book, which features the most polished Greek in the New Testament and a central argument about Melchizedek.",
+      "answer": "What is Hebrews?",
+      "type": "text"
+    }
+  ]
+},
     {
       "category": "Miracles of Jesus",
       "clues": [
-        {"value": 400, "text": "Jesus' first miracle, performed at a wedding in Cana.", "answer": "Turning water into wine", "type": "text"},
-        {"value": 800, "text": "Jesus fed 5,000 people with 2 fish and 5 of these.", "answer": "Loaves of Bread", "type": "text"},
-        {"value": 1200, "text": "Jesus walked on this body of water.", "answer": "Sea of Galilee", "type": "text"},
-        {"value": 1600, "text": "Jesus raised this man from the dead after four days.", "answer": "Lazarus", "type": "text"},
-        {"value": 2000, "text": "Jesus healed ten of these, but only one returned to thank him.", "answer": "Lepers", "type": "text"}
+        {"value": 400, "text": "Jesus' first miracle, performed at a wedding in Cana.", "answer": "What is turning water into wine", "type": "text", "media": { "type": "video", "src": "/static/assets/video/water_into_wine.mp4", "caption": "Wedding at Cana", "lock_buzzers": true, "auto_unlock": true } },
+        {"value": 800, "text": "Jesus fed 5,000 people with 2 fish and 5 of these.", "answer": "What are loaves of Bread", "type": "text", "media": { "type": "video", "src": "/static/assets/video/feeding_the_5000.mp4", "caption": "Feeding the 5,000", "lock_buzzers": true, "auto_unlock": true } },
+        {"value": 1200, "text": "Jesus walked on this body of water.", "answer": "Sea of Galilee", "type": "text", "media": { "type": "video", "src": "/static/assets/video/jesus_walks_on_water.mp4", "caption": "Jesus Walks on Water", "lock_buzzers": true, "auto_unlock": true } },
+        {"value": 1600, "text": "To pay the temple tax, Jesus told Peter he would find this coin inside the mouth of the first fish he caught.", "answer": "What is Drachma or Coin", "type": "text", "media": { "type": "video", "src": "/static/assets/video/drachma_faststart.mp4", "caption": "Temple Tax", "lock_buzzers": true, "auto_unlock": true } },
+        {"value": 2000, "text": "On a high mountain, these three disciples saw Jesus' face shine like the sun and his clothes become dazzling white.", "answer": "Who are Peter, James and John", "type": "text", "media": { "type": "video", "src": "/static/assets/video/transfiguration.mp4", "caption": "On the Mountain", "lock_buzzers": true, "auto_unlock": true } }
       ]
     },
     {
-      "category": "The \"Wrap\" Sheet",
-      "clues": [
-        {"value": 400, "text": "In Home Alone, Harry and Marv call themselves by this aquatic nickname before they change it to the 'Sticky Bandits.'", "answer": "What are the Wet Bandits?", "type": "text"},
-        {"value": 800, "text": "In National Lampoon's Christmas Vacation, Cousin Eddie kidnaps this corporate boss to demand a Christmas bonus.", "answer": "Who is Frank Shirley?", "type": "text"},
-        {"value": 1200, "text": "This 1988 action movie features a heist at Nakatomi Plaza, led by Hans Gruber.", "answer": "What is Die Hard?", "type": "text"},
-        {"value": 1600, "text": "In The Santa Clause, Tim Allen is arrested for kidnapping and questioned by a psychiatrist played by this actor (also known for Judge Reinhold... wait, that's the actor's name).", "answer": "Who is Judge Reinhold? (Great trivia/pun overlap)", "type": "text"},
-        {"value": 2000, "text": "In A Christmas Story, Ralphie fears 'the chair' and prison bars after doing this to Scott Farkus.", "answer": "What is beating him up (punching/fighting him)?", "type": "text"}
-      ]
+  "category": "Christmas Potpourri II",
+  "clues": [
+    {
+      "value": 400,
+      "text": "Matthew 1:23 cites Isaiah to say the virgin shall bear a son and call his name this, which translates to 'God with us.'",
+      "answer": "What is Immanuel?",
+      "type": "text"
+    },
+    {
+      "value": 800,
+      "text": "Gabriel appeared to Mary in Nazareth, but six months earlier he appeared to this priest while he was serving in the Temple.",
+      "answer": "Who is Zechariah?",
+      "type": "text"
+    },
+    {
+      "value": 1200,
+      "text": "When Mary arrived in the hill country of Judea, this relative was the first to address her as 'the mother of my Lord.'",
+      "answer": "Who is Elizabeth?",
+      "type": "text"
+    },
+    {
+      "value": 1600,
+      "text": "According to Matthew 2, Joseph was afraid to return to Judea because this son of Herod the Great was reigning in his father's place.",
+      "answer": "Who is Archelaus?",
+      "type": "text"
+    },
+    {
+      "value": 2000,
+      "text": "The tragic 'Slaughter of the Innocents' is described by Matthew as a fulfillment of Jeremiah's prophecy about this matriarch weeping for her children.",
+      "answer": "Who is Rachel?",
+      "type": "text"
     }
+  ]
+}
   ],
   "final_jeopardy": {
-    "category": "New Testament",
-    "text": "This apostle, a tax collector, wrote the first Gospel in the New Testament.",
-    "answer": "Matthew"
+    "category": "Three Gifts",
+    "text": "Of the three gifts presented by the Magi in Matthew 2, this is the only one explicitly mentioned by John as part of the mixture Nicodemus brought to prepare Jesus' body for burial.",
+    "answer": "What is myrrh?"
   }
 }

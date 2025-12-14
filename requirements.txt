@@ -2,3 +2,4 @@ Flask==3.0.0
 Flask-SocketIO==5.3.6
 gevent
 gevent-websocket
+qrcode==7.4.2

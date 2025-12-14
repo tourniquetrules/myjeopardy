@@ -158,6 +158,105 @@ body {
     margin-bottom: 50px;
 }
 
+/* Final Jeopardy Results */
+#fj-results-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5vh 4vw;
+}
+
+#fj-results-content {
+    width: 100%;
+    max-width: 1600px;
+    color: white;
+    text-align: center;
+}
+
+#fj-results-title {
+    font-size: 3rem;
+    margin: 0 0 16px 0;
+    letter-spacing: 1px;
+}
+
+#fj-results-answer {
+    font-size: 2.2rem;
+    margin: 0 0 18px 0;
+}
+
+.fj-correct-answer {
+    color: var(--christmas-gold);
+    font-weight: 800;
+}
+
+.fj-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.6rem;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.fj-results-table th,
+.fj-results-table td {
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    padding: 14px 12px;
+    vertical-align: top;
+}
+
+.fj-results-table th {
+    background: rgba(0, 0, 0, 0.35);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.fj-name {
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.fj-rank {
+    font-weight: 900;
+    width: 6ch;
+    white-space: nowrap;
+    color: var(--christmas-gold);
+}
+
+.fj-answer {
+    text-align: left;
+}
+
+.fj-score,
+.fj-wager {
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.fj-status.fj-correct {
+    color: #53ff7a;
+    font-weight: 900;
+}
+
+.fj-status.fj-incorrect {
+    color: #ff5a5a;
+    font-weight: 900;
+}
+
+.fj-status.fj-pending {
+    color: #ffd16b;
+    font-weight: 800;
+}
+
+@media (max-width: 1200px) {
+    #fj-results-title { font-size: 2.4rem; }
+    #fj-results-answer { font-size: 1.8rem; }
+    .fj-results-table { font-size: 1.2rem; }
+}
+
 /* Buzz indicator styling - make the player name large and prominent */
 #buzz-indicator {
     display: none;
@@ -193,7 +292,51 @@ body {
     border: none;
     margin-top: 50px;
 }
+
+/* Board countdown timer (big number) */
+#countdown-timer {
+    position: fixed;
+    top: 20vh;
+    left: 50%;
+    /* Large displays: keep it near center but offset so it doesn't cover clue text */
+    --countdown-shift-x: 12vw;
+    transform: translate(-50%, -50%) translateX(var(--countdown-shift-x));
+    z-index: 200;
+    font-weight: 900;
+    color: #ff3b3b;
+    text-shadow: 2px 2px 0 #000;
+    font-size: clamp(3.5rem, 12vw, 10rem);
+    width: max-content;
+    padding: 0.05em 0.25em;
+    border-radius: 18px;
+    background: rgba(0,0,0,0.18);
+    pointer-events: none;
 }
+
+/* On smaller laptop screens, keep timer out of the clue text area */
+@media (max-width: 1200px), (max-height: 800px) {
+    #countdown-timer {
+        top: 14px;
+        right: 18px;
+        left: auto;
+        transform: none;
+        font-size: clamp(2.25rem, 6vw, 4.5rem);
+        background: rgba(0,0,0,0.55);
+    }
+}
+
+/* Media helper styles */
+#media-container img, #media-container video, #admin-media-container img, #admin-media-container video { max-width: 100%; height: auto; border-radius: 8px; }
+.media-caption { margin-top: 8px; color: #ddd; font-size: 0.9rem; }
+
+/* Emoji scaling (used by board.js emojifyHtml wrapper) */
+.emoji {
+    font-size: 1.85em;
+    line-height: 1;
+    vertical-align: -0.08em;
+}
+
+#admin-media-container { margin-top: 8px; }
 
 /* Modern buzz button */
 #buzz-btn {

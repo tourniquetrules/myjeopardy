@@ -1,0 +1,5 @@
+name = "jeopardy-tunnel"
+
+[site]
+bucket = "./static"
+entry-point = "workers-site"

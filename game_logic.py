@@ -35,8 +35,9 @@ class Game:
         self.is_daily_double_turn = False
         self.incorrect_buzzers = set()  # SIDs of players who buzzed incorrectly on current clue
         self.buzz_session = 0  # Incremented each time buzzers are opened, to invalidate old timeouts
-        self.fj_wagers = {} # sid -> amount (should use pid now?)
-        self.fj_answers = {} # sid -> text
+        self.fj_wagers = {}  # pid -> amount
+        self.fj_answers = {}  # pid -> text
+        self.fj_grades = {}  # pid -> bool (True=correct, False=incorrect)
         self.in_final_jeopardy = False
         self.current_round = 1
         self.control_player = None # PID
@@ -45,7 +46,7 @@ class Game:
 
     def load_data(self):
         data_path = os.path.join('data', 'questions.json')
-        with open(data_path, 'r') as f:
+        with open(data_path, 'r', encoding='utf-8') as f:
             self.all_data = json.load(f)
             self.round_data = self.all_data['round_1']
             self.final_jeopardy = self.all_data['final_jeopardy']
@@ -155,7 +156,7 @@ class Game:
                     'value': clue['value'],
                     'answer': clue['answer'],
                     'type': clue.get('type', 'text'),
-                    'media_url': clue.get('media_url', None),
+                    'media': clue.get('media'),
                     'is_daily_double': is_daily_double
                 }
         return None

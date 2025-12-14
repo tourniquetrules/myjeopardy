@@ -2,6 +2,19 @@ from flask import Flask, render_template, request, session
 from flask_socketio import SocketIO, emit, join_room
 from gevent import monkey
 import game_logic
+import os
+import base64
+import io
+
+try:
+    import qrcode
+except Exception:  # pragma: no cover
+    qrcode = None
+
+try:
+    from qrcode.image import svg as qrcode_svg
+except Exception:  # pragma: no cover
+    qrcode_svg = None
 
 monkey.patch_all()
 
@@ -17,7 +30,36 @@ def lobby():
 
 @app.route('/board')
 def board():
-    return render_template('board.html', round_data=game.round_data, board_state=game.board_state, current_round=game.current_round)
+    join_url = os.environ.get('PUBLIC_JOIN_URL')
+    if not join_url:
+        # Fall back to whatever host the board was accessed with.
+        # (When using Cloudflare, set PUBLIC_JOIN_URL=https://jeopardy.haydd.com for the QR code.)
+        join_url = request.host_url.rstrip('/')
+
+    join_qr_data_uri = None
+    if qrcode is not None:
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=8,
+            border=2,
+        )
+        qr.add_data(join_url)
+        qr.make(fit=True)
+        if qrcode_svg is not None:
+            img = qr.make_image(image_factory=qrcode_svg.SvgImage)
+            buf = io.BytesIO()
+            img.save(buf)
+            join_qr_data_uri = 'data:image/svg+xml;base64,' + base64.b64encode(buf.getvalue()).decode('ascii')
+
+    return render_template(
+        'board.html',
+        round_data=game.round_data,
+        board_state=game.board_state,
+        current_round=game.current_round,
+        join_url=join_url,
+        join_qr_data_uri=join_qr_data_uri,
+    )
 
 @app.route('/player')
 def player():
@@ -33,6 +75,9 @@ def admin():
 @socketio.on('connect')
 def handle_connect():
     print(f"Client connected: {request.sid}")
+    # Print current game state for diagnostics
+    print(f"Current clue: {game.current_clue}")
+    print(f"Current buzzers locked: {game.buzzers_locked}, current_buzzer: {game.current_buzzer}, incorrect: {game.incorrect_buzzers}")
 
 @socketio.on('join_game')
 def handle_join(data):
@@ -44,6 +89,15 @@ def handle_join(data):
     game.add_player(request.sid, name, player_id)
     emit('player_list_update', game.get_player_list(), broadcast=True)
     print(f"Player joined: {name} ({player_id})")
+    # Debug: print current clue and state
+    if game.current_clue:
+        print('Player joining while a clue is active:', game.current_clue)
+        # Send current clue state to joining client so they are synced
+        # Emit show_clue or show_daily_double depending on type
+        if game.current_clue.get('is_daily_double'):
+            emit('show_daily_double', game.current_clue)
+        else:
+            emit('show_clue', game.current_clue)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -113,8 +167,11 @@ def handle_clear_buzzers():
 
 @socketio.on('admin_select_clue')
 def handle_select_clue(data):
+    print('admin_select_clue received:', data)
+    print('current_clue before:', game.current_clue)
     # Prevent selecting a new clue while a clue is still active
     if game.current_clue:
+        print('Selection rejected — previous clue active')
         emit('select_rejected', {'reason': 'Previous clue must be closed before selecting another.'})
         return
     cat_idx = data['cat_idx']
@@ -122,6 +179,7 @@ def handle_select_clue(data):
     clue = game.get_clue(cat_idx, clue_idx)
 
     if clue:
+        print('Showing clue:', clue)
         game.current_clue = clue
         if clue['is_daily_double']:
              game.is_daily_double_turn = True
@@ -144,6 +202,10 @@ def handle_select_clue(data):
                          dd_max_wager = p.score
                      # Notify Admin of Control Player
                      emit('assign_dd_control', {'sid': p.sid, 'name': p.name, 'score': p.score, 'max_wager': dd_max_wager})
+
+                     # Prompt ONLY the DD player for a wager on their phone
+                     if p.sid:
+                         emit('dd_wager_prompt', {'max_wager': dd_max_wager, 'clue_value': clue['value']}, to=p.sid)
 
              # Include player info in daily double display
              dd_clue = dict(clue)
@@ -177,7 +239,7 @@ def handle_set_wager(data):
             if p.score <= 0:
                 max_wager = game.current_clue['value']
             else:
-                max_wager = p.score
+                max_wager = max(p.score, game.current_clue['value'])
             wager = min(wager, max_wager)
             wager = max(wager, 0)  # Can't bet negative
     
@@ -194,6 +256,55 @@ def handle_set_wager(data):
         emit('buzzers_locked', broadcast=True)
         # Start a DD answer timer (30s default)
         emit('start_timer', {'duration': 30, 'show_countdown': True}, broadcast=True)
+
+
+@socketio.on('player_dd_wager')
+def handle_player_dd_wager(data):
+    # Only meaningful during a Daily Double
+    if not (game.current_clue and game.current_clue.get('is_daily_double')):
+        return
+
+    # Only the control player (DD player) should be allowed to submit
+    submitting_player = game.get_player_by_sid(request.sid)
+    if not submitting_player:
+        return
+    if game.control_player and submitting_player.pid != game.control_player:
+        emit('dd_wager_rejected', {'message': 'Only the Daily Double player can wager.'})
+        return
+
+    try:
+        wager = int(data.get('wager', 0))
+    except Exception:
+        wager = 0
+
+    # Validate wager - can't bet more than your score (or clue value if score is 0 or negative)
+    max_wager = game.current_clue['value']
+    if game.current_clue:
+        if submitting_player.score <= 0:
+            max_wager = game.current_clue['value']
+        else:
+            max_wager = max(submitting_player.score, game.current_clue['value'])
+        wager = min(wager, max_wager)
+        wager = max(wager, 0)
+
+    game.current_wager = wager
+    print(f"Daily Double wager set by player {submitting_player.name}: {wager}")
+
+    # Let the admin know wager was received (and hide their wager box)
+    emit('dd_wager_set', {
+        'sid': request.sid,
+        'name': submitting_player.name,
+        'wager': wager,
+        'max_wager': max_wager
+    }, broadcast=True)
+
+    # Reveal the clue (same flow as admin_set_wager)
+    emit('hide_clue', broadcast=True)
+    emit('show_clue', game.current_clue, broadcast=True)
+    game.buzzers_locked = True
+    game.current_buzzer = None
+    emit('buzzers_locked', broadcast=True)
+    emit('start_timer', {'duration': 30, 'show_countdown': True}, broadcast=True)
 
 def close_clue_task(cat_idx, clue_idx, answer_text):
     # Show answer
@@ -218,7 +329,15 @@ def handle_close_clue():
 
 @socketio.on('admin_update_score')
 def handle_update_score(data):
-    sid = data['sid']
+    sid = data.get('sid')
+    # Daily Double: host may grade without a buzzer winner; use the control player.
+    if (not sid) and game.is_daily_double_turn:
+        if game.control_player:
+            p = game.players.get(game.control_player)
+            sid = p.sid if p else None
+        if not sid:
+            emit('admin_error', {'message': 'Daily Double: no control player is set. Use Manual Player Select, then grade.'})
+            return
     # If DD, ignore data['points'] from client and use wager
     if game.is_daily_double_turn:
          points = game.current_wager if data['points'] > 0 else -game.current_wager
@@ -291,11 +410,29 @@ def handle_start_round_2():
         'board_state': game.board_state
     }, broadcast=True)
 
+@socketio.on('media_ended')
+def handle_media_ended(data):
+    # A client (board/admin/player) reported media finished. If the current clue had media
+    # and it asked to auto-unlock the buzzers, respect that.
+    if game.current_clue and game.current_clue.get('media'):
+        m = game.current_clue.get('media')
+        # If media was configured to auto-unlock, re-open buzzers for players.
+        if m.get('lock_buzzers') and m.get('auto_unlock'):
+            game.clear_buzzers()
+            emit('buzzers_reopened', {'locked_out': list(game.incorrect_buzzers)}, broadcast=True)
+            emit('play_sound', {'name': 'buzz'}, broadcast=True)
+        # Otherwise, just notify admin/board that media ended
+        emit('play_sound', {'name': 'times_up'}, broadcast=True)
+
 # --- Final Jeopardy Events ---
 
 @socketio.on('admin_start_fj')
 def handle_start_fj():
     game.in_final_jeopardy = True
+    # Reset Final Jeopardy state for a fresh round
+    game.fj_wagers = {}
+    game.fj_answers = {}
+    game.fj_grades = {}
     category = game.final_jeopardy['category']
     emit('start_final_jeopardy', {'category': category}, broadcast=True)
 
@@ -308,8 +445,21 @@ def handle_fj_wager(data):
 
     p = game.get_player_by_sid(request.sid)
     if p:
+        # Final Jeopardy wager: 0..max(score, 0)
+        max_wager = max(p.score, 0)
+        wager = max(0, min(wager, max_wager))
         game.fj_wagers[p.pid] = wager
-        emit('admin_fj_status', {'pid': p.pid, 'sid': request.sid, 'has_wager': True, 'has_answer': False}, broadcast=True)
+        emit(
+            'admin_fj_status',
+            {
+                'pid': p.pid,
+                'sid': request.sid,
+                'name': p.name,
+                'has_wager': True,
+                'has_answer': False,
+            },
+            broadcast=True,
+        )
 
 @socketio.on('admin_reveal_fj_clue')
 def handle_reveal_fj_clue():
@@ -324,16 +474,76 @@ def handle_fj_answer(data):
     p = game.get_player_by_sid(request.sid)
     if p:
         game.fj_answers[p.pid] = answer
-        emit('admin_fj_status', {'pid': p.pid, 'sid': request.sid, 'has_wager': True, 'has_answer': True, 'answer': answer}, broadcast=True)
+        emit('admin_fj_status', {
+            'pid': p.pid,
+            'sid': request.sid,
+            'name': p.name,
+            'has_wager': p.pid in game.fj_wagers,
+            'has_answer': True,
+            'answer': answer
+        }, broadcast=True)
 
 @socketio.on('admin_grade_fj')
 def handle_grade_fj(data):
-    pid = data['pid'] # Expect PID
-    correct = data['correct']
+    pid = data.get('pid')
+    if not pid:
+        # Back-compat: allow admin to send sid
+        sid = data.get('sid')
+        if sid:
+            p = game.get_player_by_sid(sid)
+            pid = p.pid if p else None
+    if not pid:
+        emit('admin_error', {'message': 'Final Jeopardy: missing player id.'})
+        return
+
+    correct = bool(data.get('correct'))
     wager = game.fj_wagers.get(pid, 0)
     points = wager if correct else -wager
+    game.fj_grades[pid] = correct
     game.update_score_by_pid(pid, points)
     emit('score_update', game.get_player_list(), broadcast=True)
+
+
+@socketio.on('admin_show_fj_results')
+def handle_show_fj_results():
+    # Build results payload (answers + correctness + final scores)
+    results = []
+    for p in game.players.values():
+        results.append({
+            'pid': p.pid,
+            'name': p.name,
+            'score': p.score,
+            'connected': p.connected,
+            'wager': game.fj_wagers.get(p.pid),
+            'answer': game.fj_answers.get(p.pid),
+            'correct': game.fj_grades.get(p.pid),
+            'graded': p.pid in game.fj_grades,
+        })
+
+    # Sort by final score descending (then name asc) for display
+    results.sort(key=lambda r: (-(r.get('score') or 0), (r.get('name') or '').lower()))
+
+    # Compute ranks (1, 1, 3 style for ties)
+    last_score = None
+    last_rank = 0
+    for idx, r in enumerate(results, start=1):
+        score = r.get('score') or 0
+        if last_score is None or score != last_score:
+            last_rank = idx
+            last_score = score
+            r['rank'] = last_rank
+            r['tied'] = False
+        else:
+            r['rank'] = last_rank
+            r['tied'] = True
+
+    payload = {
+        'category': game.final_jeopardy.get('category', 'FINAL JEOPARDY'),
+        'clue': game.final_jeopardy.get('text', ''),
+        'correct_answer': game.final_jeopardy.get('answer', ''),
+        'results': results,
+    }
+    emit('show_fj_results', payload, broadcast=True)
 
 if __name__ == '__main__':
     import os

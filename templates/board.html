@@ -53,12 +53,29 @@
     </div>
 
     <!-- Countdown and Answer Overlays -->
-    <div id="countdown-timer" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); font-size:10rem; color:red; z-index:200; text-shadow: 2px 2px 0 black; font-weight: bold;">10</div>
+    <div id="countdown-timer" style="display:none;">10</div>
     <div id="answer-overlay" style="display:none; position:fixed; bottom:20%; width:100%; text-align:center; font-size:4rem; color:yellow; z-index:200; background:rgba(0,0,0,0.8); padding: 20px; font-weight: bold;">ANSWER: <span id="answer-text-content"></span></div>
 
+    <!-- Final Jeopardy Results Overlay -->
+    <div id="fj-results-overlay" style="display:none;">
+        <div id="fj-results-content">
+            <h2 id="fj-results-title">FINAL JEOPARDY RESULTS</h2>
+            <div id="fj-results-answer"></div>
+            <div id="fj-results-table"></div>
+        </div>
+    </div>
+
     <div id="audio-enable-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;">
-        <h1>Click to Enable Audio</h1>
+        <h1 style="margin-bottom: 10px;">Click to Enable Audio</h1>
         <button id="enable-audio-btn" style="padding: 20px 40px; font-size: 2rem; cursor: pointer;">Start Game</button>
+
+        <div id="join-qr" style="margin-top: 26px; text-align:center;">
+            <div style="font-size: 1.4rem; margin-bottom: 10px;">Players: scan to join</div>
+            {% if join_qr_data_uri %}
+            <img src="{{ join_qr_data_uri }}" alt="Join QR" style="width: 220px; height: 220px; background: white; padding: 10px; border-radius: 8px; object-fit: contain;">
+            {% endif %}
+            <div style="margin-top: 10px; font-size: 1.1rem; opacity: 0.9;">{{ join_url }}</div>
+        </div>
     </div>
 </div>
 
@@ -71,6 +88,23 @@
         daily_double: new Audio('/static/assets/audio/daily_double.wav'),
         times_up: new Audio('/static/assets/audio/times_up.wav')
     };
+
+    function escapeHtml(s) {
+        return String(s ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Wrap emoji characters so we can scale them larger via CSS without enlarging all text.
+    // Includes most pictographic emojis + flags (regional indicator pairs).
+    const EMOJI_RE = /(?:\p{Regional_Indicator}{2}|\p{Extended_Pictographic}\uFE0F?)/gu;
+    function emojifyHtml(text) {
+        const escaped = escapeHtml(text);
+        return escaped.replace(EMOJI_RE, (m) => `<span class="emoji">${m}</span>`);
+    }
 
     $('#enable-audio-btn').click(() => {
         // Prime audio
@@ -104,19 +138,68 @@
 
     socket.on('show_clue', (clue) => {
         $('#clue-category').text(clue.category);
-        $('#clue-text').text(clue.text);
+        $('#clue-text').html(emojifyHtml(clue.text));
         $('#clue-overlay').show();
 
-        // Handle media
+        // Handle media (supports image/video/audio/iframe)
         $('#media-container').empty();
-        if (clue.media_url) {
-            const ext = clue.media_url.split('.').pop().toLowerCase();
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
-                $('#media-container').append(`<img src="${clue.media_url}" style="max-height: 50vh; max-width: 80%;">`);
-            } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
-                $('#media-container').append(`<audio controls autoplay src="${clue.media_url}"></audio>`);
-            } else if (['mp4', 'webm'].includes(ext)) {
-                $('#media-container').append(`<video controls autoplay src="${clue.media_url}" style="max-height: 50vh; max-width: 80%;"></video>`);
+        if (clue.media) {
+            const m = clue.media;
+            if (m.type === 'image') {
+                $('#media-container').append(`<img src="${m.src}" alt="${m.caption||''}" style="max-height: 50vh; max-width: 80%;">`);
+            } else if (m.type === 'audio') {
+                const a = $(`<audio controls autoplay src="${m.src}" style="max-width: 80%;"></audio>`);
+                $('#media-container').append(a);
+                a.on('ended', () => { socket.emit('media_ended', {}); });
+            } else if (m.type === 'video') {
+                const v = $(`<video controls playsinline autoplay preload="metadata" src="${m.src}" style="max-height: 50vh; max-width: 80%;"></video>`);
+                if (m.poster) v.attr('poster', m.poster);
+                if (m.muted) v.prop('muted', true);
+                $('#media-container').append(v);
+
+                const el = v.get(0);
+                if (el) {
+                    try { el.load(); } catch (e) {}
+                    try {
+                        const p = el.play();
+                        if (p && p.catch) {
+                            p.catch(() => {
+                                // Autoplay is often blocked on public HTTPS origins unless muted.
+                                try {
+                                    if (!el.muted) {
+                                        el.muted = true;
+                                        const p2 = el.play();
+                                        if (p2 && p2.catch) {
+                                            p2.catch(() => {
+                                                $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                            });
+                                        }
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked by browser. Playing muted — use the video controls to unmute.</div>`);
+                                    } else {
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                    }
+                                } catch (e) {
+                                    $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                }
+                v.on('ended', () => { socket.emit('media_ended', {}); });
+                v.on('error', () => {
+                    const el2 = v.get(0);
+                    const code = (el2 && el2.error) ? el2.error.code : 'unknown';
+                    const ns = (el2 && typeof el2.networkState !== 'undefined') ? el2.networkState : 'unknown';
+                    const rs = (el2 && typeof el2.readyState !== 'undefined') ? el2.readyState : 'unknown';
+                    $('#media-container').append(`<div class="media-caption">Video failed to load (code=${code}, network=${ns}, ready=${rs}). Try opening <a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>`);
+                });
+            } else if (m.type === 'iframe' || m.type === 'youtube') {
+                // iframe embeds (trusted URLs)
+                $('#media-container').append(`<iframe src="${m.src}" style="width:80%; height:50vh;" frameborder="0" allow="autoplay; encrypted-media; fullscreen"></iframe>`);
+            }
+
+            if (m.caption) {
+                $('#media-container').append(`<div class="media-caption">${m.caption}</div>`);
             }
         }
 
@@ -131,6 +214,61 @@
         $('#clue-text').html(ddText);
         $('#clue-overlay').show();
         $('#media-container').empty();
+        // Render any DD media as well
+        if (clue.media) {
+            const m = clue.media;
+            if (m.type === 'image') {
+                $('#media-container').append(`<img src="${m.src}" alt="${m.caption||''}" style="max-height: 50vh; max-width: 80%;">`);
+            } else if (m.type === 'video') {
+                const v = $(`<video controls playsinline autoplay preload="metadata" src="${m.src}" style="max-height: 50vh; max-width: 80%;"></video>`);
+                if (m.poster) v.attr('poster', m.poster);
+                $('#media-container').append(v);
+
+                const el = v.get(0);
+                if (el) {
+                    try { el.load(); } catch (e) {}
+                    try {
+                        const p = el.play();
+                        if (p && p.catch) {
+                            p.catch(() => {
+                                // Autoplay is often blocked on public HTTPS origins unless muted.
+                                try {
+                                    if (!el.muted) {
+                                        el.muted = true;
+                                        const p2 = el.play();
+                                        if (p2 && p2.catch) {
+                                            p2.catch(() => {
+                                                $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                            });
+                                        }
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked by browser. Playing muted — use the video controls to unmute.</div>`);
+                                    } else {
+                                        $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                    }
+                                } catch (e) {
+                                    $('#media-container').append(`<div class="media-caption">Autoplay blocked. Click play to start the video.</div>`);
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                }
+                v.on('ended', () => { socket.emit('media_ended', {}); });
+                v.on('error', () => {
+                    const el2 = v.get(0);
+                    const code = (el2 && el2.error) ? el2.error.code : 'unknown';
+                    const ns = (el2 && typeof el2.networkState !== 'undefined') ? el2.networkState : 'unknown';
+                    const rs = (el2 && typeof el2.readyState !== 'undefined') ? el2.readyState : 'unknown';
+                    $('#media-container').append(`<div class="media-caption">Video failed to load (code=${code}, network=${ns}, ready=${rs}). Try opening <a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>`);
+                });
+            } else if (m.type === 'audio') {
+                const a = $(`<audio controls autoplay src="${m.src}" style="max-width: 80%;"></audio>`);
+                $('#media-container').append(a);
+                a.on('ended', () => { socket.emit('media_ended', {}); });
+            } else if (m.type === 'iframe') {
+                $('#media-container').append(`<iframe src="${m.src}" style="width:80%; height:50vh;" frameborder="0" allow="autoplay; encrypted-media; fullscreen"></iframe>`);
+            }
+            if (m.caption) $('#media-container').append(`<div class="media-caption">${m.caption}</div>`);
+        }
         $('#timer-fill').css('width', '100%');
         $('#buzz-indicator').hide();
     });
@@ -201,21 +339,81 @@
     });
 
     socket.on('show_answer_text', (data) => {
-        $('#answer-text-content').text(data.text);
+        $('#answer-text-content').html(emojifyHtml(data.text));
         $('#answer-overlay').show();
     });
 
     socket.on('start_final_jeopardy', (data) => {
         $('#game-grid').hide();
+        $('#fj-results-overlay').hide();
         $('#clue-overlay').show();
         $('#clue-category').text(data.category);
         $('#clue-text').text("FINAL JEOPARDY - Place your wagers!");
     });
 
     socket.on('show_fj_clue', (data) => {
-         $('#clue-text').text(data.text);
+            $('#clue-text').html(emojifyHtml(data.text));
          // Music?
     });
+
+    socket.on('show_fj_results', (data) => {
+        $('#countdown-timer').hide();
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        $('#clue-overlay').hide();
+        $('#answer-overlay').hide();
+
+        const correctAnswer = data.correct_answer ? emojifyHtml(data.correct_answer) : '';
+        const category = escapeHtml(data.category || 'FINAL JEOPARDY');
+        $('#fj-results-title').text(`FINAL JEOPARDY RESULTS — ${category}`);
+        $('#fj-results-answer').html(correctAnswer ? `Correct Response: <span class="fj-correct-answer">${correctAnswer}</span>` : '');
+
+        const rows = (data.results || []).map(r => {
+            const rank = (r.rank === null || r.rank === undefined) ? '' : (r.tied ? `T${r.rank}` : `${r.rank}`);
+            const name = escapeHtml(r.name || '');
+            const wager = (r.wager === null || r.wager === undefined) ? '' : `$${r.wager}`;
+            const answer = r.answer ? emojifyHtml(r.answer) : '';
+            const status = r.graded ? (r.correct ? 'Correct' : 'Incorrect') : 'Not graded';
+            const statusClass = r.graded ? (r.correct ? 'fj-correct' : 'fj-incorrect') : 'fj-pending';
+            const score = (r.score === null || r.score === undefined) ? '' : `$${r.score}`;
+            return `
+                <tr>
+                    <td class="fj-rank">${escapeHtml(rank)}</td>
+                    <td class="fj-name">${name}</td>
+                    <td class="fj-wager">${escapeHtml(wager)}</td>
+                    <td class="fj-answer">${answer}</td>
+                    <td class="fj-status ${statusClass}">${escapeHtml(status)}</td>
+                    <td class="fj-score">${escapeHtml(score)}</td>
+                </tr>
+            `;
+        }).join('');
+
+        $('#fj-results-table').html(`
+            <table class="fj-results-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Wager</th>
+                        <th>Response</th>
+                        <th>Result</th>
+                        <th>Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `);
+
+        $('#fj-results-overlay').show();
+    });
+
+        // Apply emoji styling to category headers as well
+        $('.grid-header').each(function() {
+           const t = $(this).text();
+           $(this).html(emojifyHtml(t));
+        });
 
     socket.on('round_2_started', () => {
         location.reload();
